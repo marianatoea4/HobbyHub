@@ -1,0 +1,192 @@
+/* container general */
+.landing-container {
+  min-height: 100vh;
+  background-color: #faf6e9;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333333;
+  display: flex;
+  flex-direction: column;
+}
+
+/* bara de navigare */
+.landing-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #fffdf6;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #a0c878;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.nav-link-login {
+  text-decoration: none;
+  color: #4a4a4a;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.nav-link-login:hover {
+  color: #a0c878;
+}
+
+.nav-btn-signup {
+  text-decoration: none;
+  padding: 10px 20px;
+  background-color: #a0c878;
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.nav-btn-signup:hover {
+  background-color: #8eb36a;
+  /*transform: translateY(-2px);*/
+  box-shadow: 0 4px 10px rgba(160, 200, 120, 0.3);
+}
+
+/* HERO SECTION - partea principala */
+.hero-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 80px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #333333;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.hero-title span {
+  color: #a0c878;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: #666666;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.btn-primary {
+  padding: 15px 30px;
+  background-color: #a0c878;
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #8eb36a;
+  /*transform: translateY(-3px);*/
+  box-shadow: 0 8px 20px rgba(160, 200, 120, 0.4);
+}
+
+.btn-secondary {
+  padding: 15px 30px;
+  background-color: transparent;
+  color: #4a4a4a;
+  text-decoration: none;
+  border: 2px solid #ddeb9d;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  border-color: #a0c878;
+  color: #333333;
+  background-color: rgba(221, 235, 157, 0.1);
+}
+
+/* sectiunea de functionalitati - features */
+.features-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 60px 40px 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background-color: #fffdf6;
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ddeb9d 0%, #c9dd85 100%);
+  padding: 20px;
+  border-radius: 50%;
+  border: 2px solid #a0c878;
+  width: 80px;
+  height: 80px;
+}
+
+.feature-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #333333;
+}
+
+.feature-desc {
+  font-size: 0.95rem;
+  color: #666666;
+  line-height: 1.5;
+}
+
+/* footer simplu */
+.landing-footer {
+  text-align: center;
+  padding: 20px;
+  color: #666666;
+  font-size: 0.9rem;
+  border-top: 1px solid #ddeb9d;
+}
