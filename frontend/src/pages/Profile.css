@@ -1,0 +1,223 @@
+/* Containerul principal al paginii */
+.profile-page-container {
+  min-height: 100vh;
+  background-color: #faf6e9; /* fundalul bej principal */
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 40px; /* spatiere generoasa pe desktop */
+  box-sizing: border-box;
+}
+
+/* layout-ul pe desktop (doua coloane) */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr; /* coloana stanga fixa, dreapta ocupa restul */
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto; /* centrare pe ecrane foarte mari */
+}
+
+/* widgets comune (carduri albe) */
+.profile-card {
+  background-color: #fffdf6; /* fundal card alb-crem */
+  border-radius: 20px; /* rotunjire moderna */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04); /* umbra foarte fina */
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+/* coloana stanga: info personale*/
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: sticky; /* ramane vizibila la scroll */
+  top: 40px;
+  height: fit-content;
+}
+
+/* avatarul*/
+.profile-avatar-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.profile-avatar-initials {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 5px solid #a0c878;
+  background: linear-gradient(135deg, #ddeb9d 0%, #a0c878 100%);
+  color: white;
+  font-size: 3rem;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(160, 200, 120, 0.3);
+}
+
+/* nume si info */
+.profile-name {
+  color: #333333; /* gri antracit inchis */
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+}
+
+.profile-email {
+  color: #666666;
+  font-size: 1rem;
+  margin: 0 0 20px 0;
+  word-break: break-all;
+}
+
+.profile-bio {
+  color: #4a4a4a;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  font-style: italic;
+}
+
+/* butoane de actiune sidebar*/
+.profile-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-edit-profile {
+  width: 100%;
+  padding: 12px;
+  background-color: #a0c878; /* verdele principal */
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit-profile:hover {
+  background-color: #8eb36a;
+}
+
+.btn-change-password {
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  color: #4a4a4a;
+  border: 2px solid #a0c878;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-change-password:hover {
+  background-color: #faf6e9;
+  border-color: #a0c878;
+  color: #333333;
+}
+
+/* coloana dreapta: activitate*/
+.profile-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* sectiunea de statistici*/
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #a0c878; /* verdele principal pentru numere */
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.95rem;
+  color: #666666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* zona de activitate cu tab-uri*/
+.profile-activity-card {
+  padding: 0; /* anulam padding-ul cardului pentru tab-uri full-width */
+  overflow: hidden;
+}
+
+.profile-tabs-header {
+  display: flex;
+  background-color: #faf6e9;
+  border-bottom: 2px solid #ddeb9d;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 20px;
+  background: none;
+  border: none;
+  color: #666666;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-button:hover {
+  color: #333333;
+  background-color: rgba(160, 200, 120, 0.05);
+}
+
+.tab-button.active {
+  color: #a0c878;
+}
+
+/* linia verde de sub tab-ul activ */
+.tab-button.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px; /* peste bordura header-ului */
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #a0c878;
+  border-radius: 4px 4px 0 0;
+}
+
+.profile-tabs-content {
+  padding: 30px;
+}
+
+/* placeholder pentru liste */
+.placeholder-list-item {
+  padding: 15px;
+  border-bottom: 1px solid #ddeb9d;
+  color: #4a4a4a;
+}
+
+.placeholder-list-item:last-child {
+  border-bottom: none;
+}
