@@ -1,0 +1,63 @@
+package com.hobbyhub.api.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "events")
+public class Event {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "organizer_id") // Numele coloanei din tabelul SQL
+    private User organizer;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(columnDefinition = "TEXT") // Pentru descrieri mai lungi
+    private String description;
+
+    @Column(nullable = false)
+    private String category;
+
+    private LocalDateTime dateTime;
+    private Integer capacity;
+
+    private Double lat;
+    private Double lng;
+
+    private String status;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public User getOrganizer() { return organizer; }
+    public void setOrganizer(User organizer) { this.organizer = organizer; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public LocalDateTime getDateTime() { return dateTime; }
+    public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
+
+    public Integer getCapacity() { return capacity; }
+    public void setCapacity(Integer capacity) { this.capacity = capacity; }
+
+    public Double getLat() { return lat; }
+    public void setLat(Double lat) { this.lat = lat; }
+
+    public Double getLng() { return lng; }
+    public void setLng(Double lng) { this.lng = lng; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+}
