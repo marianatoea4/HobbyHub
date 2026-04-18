@@ -125,3 +125,30 @@
 .login-footer a:hover {
   color: #8eb36a;
 }
+
+/* Mesajul rosu de sub input */
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: block;
+  text-align: left;
+}
+
+/* contur rosu pentru input cand e eroare */
+.input-error {
+  border-color: #ff4d4d !important;
+}
+
+/* Un mic efect de tremurat pentru eroare */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.input-error {
+  animation: shake 0.3s ease-in-out;
+}
