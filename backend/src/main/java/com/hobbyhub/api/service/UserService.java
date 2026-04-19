@@ -61,4 +61,23 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    public void changePassword(Long id, String currentPassword, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
+
+        // Verificăm parola actuală
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("WRONG_PASSWORD");
+        }
+
+        // Validăm complexitatea parolei noi
+        if (!ValidationUtil.isValidPassword(newPassword)) {
+            throw new RuntimeException("INVALID_PASSWORD");
+        }
+
+        // Criptăm și salvăm noua parolă
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 }
