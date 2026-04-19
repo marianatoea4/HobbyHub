@@ -34,3 +34,8 @@ build/
 
 ### Config application ###
 src/main/resources/application.properties
+
+.idea/
+*.pdf
+*.txt
+backend/security.properties

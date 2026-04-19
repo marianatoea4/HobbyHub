@@ -144,3 +144,20 @@
 .signup-footer a:hover {
   color: #8eb36a;
 }
+
+/* stiluri pentru mesajele de eroare */
+.error-message {
+  color: #d9534f;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  display: block;
+}
+
+.input-error {
+  border-color: #d9534f !important;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 4px rgba(217, 83, 79, 0.2) !important;
+}
+
