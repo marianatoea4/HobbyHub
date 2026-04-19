@@ -39,3 +39,4 @@ src/main/resources/application.properties
 *.pdf
 *.txt
 backend/security.properties
+src/main/resources/application-dev.properties

@@ -30,6 +30,8 @@ export default function Login() {
       if(response.ok){
         const data = await response.json();
         console.log("Login reușit!", data);
+        // Salvăm datele utilizatorului în localStorage pentru a fi folosite în aplicație
+        localStorage.setItem("user", JSON.stringify(data));
         // te redirecteaza la profil momentan, dupa ce adaugam home page o sa schimbam aici
         navigate("/profile");
       }else {
