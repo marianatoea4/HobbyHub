@@ -107,6 +107,7 @@ export default function Profile() {
       });
   };
 
+
   useEffect(() => {
     fetchUserData();
   }, [userId]);
