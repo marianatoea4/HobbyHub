@@ -218,6 +218,7 @@ export default function Profile() {
             </>
           ) : isEditing ? (
             <div className="edit-form">
+              <h3>Editează Profilul</h3>
               <div className="input-group">
                 <label>Prenume</label>
                 <input
