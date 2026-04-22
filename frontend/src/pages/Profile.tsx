@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
+import Navbar from "../components/Navbar";
 
 // Interfață pentru datele utilizatorului primite de la API
 interface User {
@@ -41,7 +42,9 @@ function AvatarWithInitials({
   firstName: string;
   lastName: string;
 }) {
-  const initials = ((firstName?.charAt(0) || "") + (lastName?.charAt(0) || "")).toUpperCase();
+  const initials = (
+    (firstName?.charAt(0) || "") + (lastName?.charAt(0) || "")
+  ).toUpperCase();
 
   return <div className="profile-avatar-initials">{initials}</div>;
 }
@@ -51,14 +54,18 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  
+
   // Stări pentru editare profil
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ firstName: "", lastName: "" });
 
   // Stări pentru schimbare parolă
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [passwordData, setPasswordData] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   // stare pentru a sti ce tab este selectat
   const [activeTab, setActiveTab] = useState<
@@ -96,7 +103,7 @@ export default function Profile() {
           bio: "Pasionat de tehnologie și hobby-uri noi. Utilizator activ HobbyHub!",
           organizedEventsCount: 3,
           joinedEventsCount: 8,
-          rating: 4.9
+          rating: 4.9,
         });
         setEditData({ firstName: data.firstName, lastName: data.lastName });
         setLoading(false);
@@ -106,7 +113,6 @@ export default function Profile() {
         setLoading(false);
       });
   };
-
 
   useEffect(() => {
     fetchUserData();
@@ -123,17 +129,23 @@ export default function Profile() {
   const handleChangePasswordToggle = () => {
     setIsChangingPassword(!isChangingPassword);
     setIsEditing(false);
-    setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditData(prev => ({ ...prev, [name]: value }));
+    setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePasswordInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({ ...prev, [name]: value }));
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
@@ -164,14 +176,16 @@ export default function Profile() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
+        newPassword: passwordData.newPassword,
       }),
     })
       .then(async (response) => {
         if (!response.ok) {
           const errorMsg = await response.text();
           if (errorMsg === "INVALID_PASSWORD") {
-            throw new Error("Parola nouă nu respectă regulile (min. 8 caractere, o majusculă, o cifră, un caracter special).");
+            throw new Error(
+              "Parola nouă nu respectă regulile (min. 8 caractere, o majusculă, o cifră, un caracter special).",
+            );
           } else if (errorMsg === "WRONG_PASSWORD") {
             throw new Error("Parola actuală este incorectă.");
           }
@@ -188,12 +202,20 @@ export default function Profile() {
     navigate("/login");
   };
 
-  if (loading) return <div className="profile-page-container">Se încarcă...</div>;
-  if (error) return <div className="profile-page-container">Eroare: {error}</div>;
-  if (!user) return <div className="profile-page-container">Utilizatorul nu a fost găsit.</div>;
+  if (loading)
+    return <div className="profile-page-container">Se încarcă...</div>;
+  if (error)
+    return <div className="profile-page-container">Eroare: {error}</div>;
+  if (!user)
+    return (
+      <div className="profile-page-container">
+        Utilizatorul nu a fost găsit.
+      </div>
+    );
 
   return (
     <div className="profile-page-container">
+      <Navbar />
       <div className="profile-layout">
         {/* coloana stanga: Sidebar */}
         <aside className="profile-sidebar profile-card">
@@ -212,9 +234,22 @@ export default function Profile() {
               <p className="profile-email">{user.email}</p>
               <p className="profile-bio">{user.bio}</p>
               <div className="profile-actions">
-                <button className="btn-edit-profile" onClick={handleEditToggle}>Editează profilul</button>
-                <button className="btn-change-password" onClick={handleChangePasswordToggle}>Schimbă parola</button>
-                <button className="btn-logout" onClick={handleLogout} style={{ marginTop: '10px', backgroundColor: '#ff4d4d' }}>Log Out</button>
+                <button className="btn-edit-profile" onClick={handleEditToggle}>
+                  Editează profilul
+                </button>
+                <button
+                  className="btn-change-password"
+                  onClick={handleChangePasswordToggle}
+                >
+                  Schimbă parola
+                </button>
+                <button
+                  className="btn-logout"
+                  onClick={handleLogout}
+                  style={{ marginTop: "10px", backgroundColor: "#ff4d4d" }}
+                >
+                  Deconectare
+                </button>
               </div>
             </>
           ) : isEditing ? (
@@ -239,8 +274,18 @@ export default function Profile() {
                 />
               </div>
               <div className="profile-actions">
-                <button className="btn-edit-profile save-btn" onClick={handleSave}>Salvează</button>
-                <button className="btn-edit-profile cancel-btn" onClick={handleEditToggle}>Anulează</button>
+                <button
+                  className="btn-edit-profile save-btn"
+                  onClick={handleSave}
+                >
+                  Salvează
+                </button>
+                <button
+                  className="btn-edit-profile cancel-btn"
+                  onClick={handleEditToggle}
+                >
+                  Anulează
+                </button>
               </div>
             </div>
           ) : (
@@ -274,8 +319,18 @@ export default function Profile() {
                 />
               </div>
               <div className="profile-actions">
-                <button className="btn-change-password save-btn" onClick={handlePasswordSave}>Salvează parola</button>
-                <button className="btn-change-password cancel-btn" onClick={handleChangePasswordToggle}>Anulează</button>
+                <button
+                  className="btn-change-password save-btn"
+                  onClick={handlePasswordSave}
+                >
+                  Salvează parola
+                </button>
+                <button
+                  className="btn-change-password cancel-btn"
+                  onClick={handleChangePasswordToggle}
+                >
+                  Anulează
+                </button>
               </div>
             </div>
           )}
@@ -286,9 +341,7 @@ export default function Profile() {
           {/* sectiunea de statistici*/}
           <section className="profile-stats-grid">
             <div className="stat-item profile-card">
-              <span className="stat-value">
-                {user.organizedEventsCount}
-              </span>
+              <span className="stat-value">{user.organizedEventsCount}</span>
               <span className="stat-label">Evenimente organizate</span>
             </div>
             <div className="stat-item profile-card">

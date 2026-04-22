@@ -5,6 +5,7 @@
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   padding: 40px; /* spatiere generoasa pe desktop */
   box-sizing: border-box;
+  margin-top: 60px;
 }
 
 /* layout-ul pe desktop (doua coloane) */
@@ -222,8 +223,6 @@
   border-bottom: none;
 }
 
-
-
 .edit-form {
   width: 100%;
   display: flex;
@@ -252,7 +251,7 @@
   margin-left: 5px;
 }
 
-.input-group input, 
+.input-group input,
 .input-group textarea {
   width: 100%;
   padding: 10px 14px;
@@ -269,7 +268,6 @@
   border-color: #a0c878;
   box-shadow: 0 0 0 3px rgba(160, 200, 120, 0.15);
 }
-
 
 .save-btn {
   background-color: #a0c878 !important;
