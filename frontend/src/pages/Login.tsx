@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 export default function Login() {
@@ -20,34 +20,34 @@ export default function Login() {
     setEmailError("");
     setPasswordError("");
 
-    try{
+    try {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      if(response.ok){
+      if (response.ok) {
         const data = await response.json();
         console.log("Login reușit!", data);
-        // Salvăm datele utilizatorului în localStorage pentru a fi folosite în aplicație
+        // Salvam datele utilizatorului in localStorage pentru a fi folosite in aplicatie
         localStorage.setItem("user", JSON.stringify(data));
         // te redirecteaza la profil momentan, dupa ce adaugam home page o sa schimbam aici
-        navigate("/profile");
-      }else {
+        navigate("/dashboard");
+      } else {
         if (response.status === 404) {
           setEmailError("Email incorect");
-          setEmail("");    // Goleste email
+          setEmail(""); // Goleste email
           setPassword(""); // Goleste parola
         } else if (response.status === 401) {
           setPasswordError("Parola este incorectă");
           setPassword(""); // Goleste doar parola
         }
       }
-    }catch (error) {
+    } catch (error) {
       console.error("Eroare la conexiune:", error);
       alert("Serverul nu răspunde!");
-      }
+    }
   };
 
   return (
@@ -84,7 +84,9 @@ export default function Login() {
               className={passwordError ? "input-error" : ""}
               required
             />
-            {passwordError && <span className="error-message">{passwordError}</span>}
+            {passwordError && (
+              <span className="error-message">{passwordError}</span>
+            )}
           </div>
 
           <button type="submit" className="login-btn">
