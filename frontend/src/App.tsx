@@ -4,6 +4,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
+import Events from "./pages/Events";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/events" element={<Events />} />
       </Routes>
     </Router>
   );
