@@ -5,6 +5,7 @@ import Profile from "./pages/Profile";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
+import CreateEvent from "./pages/CreateEvent";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/create-event" element={<CreateEvent />} />
       </Routes>
     </Router>
   );
