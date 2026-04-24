@@ -2,6 +2,8 @@ package com.hobbyhub.api.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "events")
@@ -31,7 +33,15 @@ public class Event {
 
     private String status;
 
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventImage> images = new ArrayList<>();
+
     public Long getId() { return id; }
+
+    public List<EventImage> getImages() { return images; }
+
+    public void setImages(List<EventImage> images) { this.images = images; }
+
     public void setId(Long id) { this.id = id; }
 
     public User getOrganizer() { return organizer; }
