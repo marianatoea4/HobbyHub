@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import "./LandingPage.css";
 
-// Professional SVG Icons
 function PaletteIcon() {
   return (
     <svg

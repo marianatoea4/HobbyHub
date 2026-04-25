@@ -32,7 +32,6 @@ export default function Login() {
         console.log("Login reușit!", data);
         // Salvam datele utilizatorului in localStorage pentru a fi folosite in aplicatie
         localStorage.setItem("user", JSON.stringify(data));
-        // te redirecteaza la profil momentan, dupa ce adaugam home page o sa schimbam aici
         navigate("/dashboard");
       } else {
         if (response.status === 404) {

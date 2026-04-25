@@ -73,7 +73,7 @@ export default function CreateEvent() {
     try {
       const response = await fetch("http://localhost:8080/api/events/create", {
         method: "POST",
-        body: data, // browserul setează automat "multipart/form-data"
+        body: data, // browserul seteaza automat "multipart/form-data"
       });
 
       if (response.ok) {
@@ -105,7 +105,7 @@ export default function CreateEvent() {
 
           <form onSubmit={handleSubmit} className="event-form">
             <div className="form-grid">
-              {/* Coloana stanga: info de baza */}
+              {/* coloana stanga: info de baza */}
               <div className="form-column">
                 <div className="form-group">
                   <label>Titlu eveniment</label>
@@ -176,7 +176,7 @@ export default function CreateEvent() {
                 </div>
               </div>
 
-              {/* Coloana Dreaptă: Media și Locație */}
+              {/* coloana dreapta: imagini si locatie */}
               <div className="form-column">
                 <div className="form-group">
                   <label>Adaugă poze (poți selecta mai multe)</label>

@@ -14,7 +14,7 @@
   background-color: #fffdf6;
   padding: 40px;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Umbră fină și modernă */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   width: 100%;
   max-width: 420px;
   text-align: center;
@@ -22,14 +22,14 @@
 
 /* titluri */
 .login-title {
-  color: #333333; /* gri antracit inchis */
+  color: #333333;
   font-size: 2rem;
   margin-bottom: 8px;
   margin-top: 0;
 }
 
 .login-subtitle {
-  color: #666666; /* gri mai deschis */
+  color: #666666;
   font-size: 0.95rem;
   margin-bottom: 30px;
 }
@@ -42,7 +42,7 @@
 
 .form-group label {
   display: block;
-  color: #4a4a4a; /* gri antracit mediu */
+  color: #4a4a4a;
   margin-bottom: 8px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -51,7 +51,7 @@
 .form-group input {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #ddeb9d; /* verdele deschis pentru contur */
+  border: 2px solid #ddeb9d;
   border-radius: 10px;
   background-color: #fffdf6;
   color: #333333;
@@ -63,11 +63,11 @@
 /* efectul la click pe input */
 .form-group input:focus {
   outline: none;
-  border-color: #a0c878; /* verdele principal */
-  box-shadow: 0 0 0 4px rgba(160, 200, 120, 0.2); /* efect de "glow" */
+  border-color: #a0c878;
+  box-shadow: 0 0 0 4px rgba(160, 200, 120, 0.2);
 }
 
-/* butonul de Login */
+/* butonul de login */
 .login-btn {
   width: 100%;
   padding: 14px;
@@ -83,7 +83,7 @@
 }
 
 .login-btn:hover {
-  background-color: #8eb36a; /* o nuanta o idee mai inchisa la hover */
+  background-color: #8eb36a;
   box-shadow: 0 6px 15px rgba(160, 200, 120, 0.4);
 }
 
@@ -126,7 +126,7 @@
   color: #8eb36a;
 }
 
-/* Mesajul rosu de sub input */
+/* mesajul rosu de sub input */
 .error-message {
   color: #ff4d4d;
   font-size: 0.8rem;
@@ -140,13 +140,23 @@
   border-color: #ff4d4d !important;
 }
 
-/* Un mic efect de tremurat pentru eroare */
+/* un mic efect de tremurat pentru eroare */
 @keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .input-error {

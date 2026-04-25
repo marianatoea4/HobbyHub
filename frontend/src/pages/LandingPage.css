@@ -55,7 +55,6 @@
 
 .nav-btn-signup:hover {
   background-color: #8eb36a;
-  /*transform: translateY(-2px);*/
   box-shadow: 0 4px 10px rgba(160, 200, 120, 0.3);
 }
 
@@ -110,7 +109,6 @@
 
 .btn-primary:hover {
   background-color: #8eb36a;
-  /*transform: translateY(-3px);*/
   box-shadow: 0 8px 20px rgba(160, 200, 120, 0.4);
 }
 
