@@ -29,16 +29,33 @@ public class EventService {
             Files.createDirectories(Paths.get(eventFolder));
 
             for (MultipartFile file : files) {
-                String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                //String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                String originalName = file.getOriginalFilename();
+                if (originalName != null) {
+                    // Înlocuiește spațiile și caracterele dubioase cu underscore "_"
+                    originalName = originalName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+                }
+                String fileName = UUID.randomUUID().toString() + "_" + originalName;
                 Path filePath = Paths.get(eventFolder + fileName);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
+                // Salvez path-ul relativ care va fi servit de WebConfig
+                //String relativeImageUrl = "/uploads/" + savedEvent.getId() + "/" + fileName;
+                String relativeImageUrl = "/" + UPLOAD_DIR + savedEvent.getId() + "/" + fileName;
+
                 EventImage image = new EventImage();
-                image.setImageUrl("/" + eventFolder + fileName);
+                image.setImageUrl(relativeImageUrl);
                 image.setEvent(savedEvent);
                 eventImageRepository.save(image);
+                
+                System.out.println("Imagine salvată: " + relativeImageUrl);
             }
         }
         return savedEvent;
+    }
+
+    // metoda pentru a prelua toate evenimentele din baza de date
+    public List<Event> getAllEvents() {
+        return eventRepository.findAll();
     }
 }
