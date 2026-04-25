@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 import Navbar from "../components/Navbar";
 
-// Interfață pentru datele utilizatorului primite de la API
+// interfat pentru datele utilizatorului primite de la API
 interface User {
   id: number;
   firstName: string;
@@ -15,7 +15,6 @@ interface User {
   rating?: number;
 }
 
-// Component for Star icon
 function StarIcon() {
   return (
     <svg
@@ -34,7 +33,6 @@ function StarIcon() {
   );
 }
 
-// Component for Avatar with initials
 function AvatarWithInitials({
   firstName,
   lastName,
@@ -55,11 +53,11 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Stări pentru editare profil
+  // stari pentru editare profil
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ firstName: "", lastName: "" });
 
-  // Stări pentru schimbare parolă
+  // stari pentru schimbare parola
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -72,7 +70,7 @@ export default function Profile() {
     "organized" | "joined" | "reports"
   >("organized");
 
-  // Preluăm ID-ul din localStorage
+  // preluam ID-ul din localStorage
   const getLoggedInUserId = () => {
     const userStr = localStorage.getItem("user");
     if (!userStr) return null;
@@ -217,7 +215,7 @@ export default function Profile() {
     <div className="profile-page-container">
       <Navbar />
       <div className="profile-layout">
-        {/* coloana stanga: Sidebar */}
+        {/* coloana stanga: sidebar */}
         <aside className="profile-sidebar profile-card">
           <div className="profile-avatar-container">
             <AvatarWithInitials
@@ -336,9 +334,9 @@ export default function Profile() {
           )}
         </aside>
 
-        {/* coloana dreapta: main content*/}
+        {/* coloana dreapta: main content */}
         <main className="profile-main-content">
-          {/* sectiunea de statistici*/}
+          {/* sectiunea de statistici */}
           <section className="profile-stats-grid">
             <div className="stat-item profile-card">
               <span className="stat-value">{user.organizedEventsCount}</span>
@@ -357,7 +355,7 @@ export default function Profile() {
             </div>
           </section>
 
-          {/* sectiunea de activitate cu tab-uri*/}
+          {/* sectiunea de activitate cu tab-uri */}
           <section className="profile-activity-card profile-card">
             <div className="profile-tabs-header">
               <button

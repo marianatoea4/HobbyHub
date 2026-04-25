@@ -2,7 +2,7 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import "./Events.css";
 
-// Date provizorii pentru evenimente (Placeholder)
+// date provizorii pentru evenimente (placeholder)
 const mockEvents = [
   {
     id: 1,
@@ -148,7 +148,7 @@ export default function Events() {
                     <span className="event-spots">
                       {event.spots} locuri libere
                     </span>
-                    <button className="btn-view-event">Vezi Detalii</button>
+                    <button className="btn-view-event">Vezi detalii</button>
                   </div>
                 </div>
               </div>

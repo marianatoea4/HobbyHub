@@ -5,7 +5,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Aici vom sterge datele sesiunii mai tarziu
+    // aici vom sterge datele sesiunii mai tarziu
     console.log("Deconectare...");
     navigate("/login");
   };

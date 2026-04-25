@@ -1,43 +1,39 @@
-/* Containerul principal al paginii */
+/* containerul principal al paginii */
 .profile-page-container {
   min-height: 100vh;
-  background-color: #faf6e9; /* fundalul bej principal */
+  background-color: #faf6e9;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  padding: 40px; /* spatiere generoasa pe desktop */
+  padding: 40px;
   box-sizing: border-box;
   margin-top: 60px;
 }
 
-/* layout-ul pe desktop (doua coloane) */
 .profile-layout {
   display: grid;
-  grid-template-columns: 320px 1fr; /* coloana stanga fixa, dreapta ocupa restul */
+  grid-template-columns: 320px 1fr;
   gap: 30px;
   max-width: 1400px;
-  margin: 0 auto; /* centrare pe ecrane foarte mari */
+  margin: 0 auto;
 }
 
-/* widgets comune (carduri albe) */
 .profile-card {
-  background-color: #fffdf6; /* fundal card alb-crem */
-  border-radius: 20px; /* rotunjire moderna */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04); /* umbra foarte fina */
+  background-color: #fffdf6;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
   padding: 30px;
   box-sizing: border-box;
 }
 
-/* coloana stanga: info personale*/
 .profile-sidebar {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  position: sticky; /* ramane vizibila la scroll */
+  position: sticky;
   top: 40px;
   height: fit-content;
 }
 
-/* avatarul*/
 .profile-avatar-container {
   position: relative;
   margin-bottom: 20px;
@@ -60,7 +56,7 @@
 
 /* nume si info */
 .profile-name {
-  color: #333333; /* gri antracit inchis */
+  color: #333333;
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 5px 0;
@@ -81,7 +77,7 @@
   font-style: italic;
 }
 
-/* butoane de actiune sidebar*/
+/* butoane de actiune sidebar */
 .profile-actions {
   width: 100%;
   display: flex;
@@ -92,7 +88,7 @@
 .btn-edit-profile {
   width: 100%;
   padding: 12px;
-  background-color: #a0c878; /* verdele principal */
+  background-color: #a0c878;
   color: white;
   border: none;
   border-radius: 12px;
@@ -125,14 +121,14 @@
   color: #333333;
 }
 
-/* coloana dreapta: activitate*/
+/* coloana dreapta: activitate */
 .profile-main-content {
   display: flex;
   flex-direction: column;
   gap: 30px;
 }
 
-/* sectiunea de statistici*/
+/* sectiunea de statistici */
 .profile-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -150,7 +146,7 @@
 .stat-value {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #a0c878; /* verdele principal pentru numere */
+  color: #a0c878;
   margin-bottom: 5px;
 }
 
@@ -162,9 +158,9 @@
   letter-spacing: 1px;
 }
 
-/* zona de activitate cu tab-uri*/
+/* zona de activitate cu tab-uri */
 .profile-activity-card {
-  padding: 0; /* anulam padding-ul cardului pentru tab-uri full-width */
+  padding: 0;
   overflow: hidden;
 }
 
@@ -200,7 +196,7 @@
 .tab-button.active::after {
   content: "";
   position: absolute;
-  bottom: -2px; /* peste bordura header-ului */
+  bottom: -2px;
   left: 0;
   width: 100%;
   height: 4px;
@@ -212,7 +208,6 @@
   padding: 30px;
 }
 
-/* placeholder pentru liste */
 .placeholder-list-item {
   padding: 15px;
   border-bottom: 1px solid #ddeb9d;

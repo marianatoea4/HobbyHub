@@ -24,7 +24,9 @@ export default function Signup() {
     setGeneralError("");
 
     if (!termsAccepted) {
-      setGeneralError("Te rugăm să accepți Termenii și Condițiile pentru a continua.");
+      setGeneralError(
+        "Te rugăm să accepți Termenii și Condițiile pentru a continua.",
+      );
       return;
     }
 
@@ -52,7 +54,7 @@ export default function Signup() {
             break;
           case "INVALID_PASSWORD":
             setPasswordError(
-              "Parola trebuie să aibă min. 8 caractere, 1 majusculă, 1 cifră, 1 caracter special."
+              "Parola trebuie să aibă min. 8 caractere, 1 majusculă, 1 cifră, 1 caracter special.",
             );
             setPassword("");
             break;
@@ -131,7 +133,9 @@ export default function Signup() {
               className={passwordError ? "input-error" : ""}
               required
             />
-            {passwordError && <span className="error-message">{passwordError}</span>}
+            {passwordError && (
+              <span className="error-message">{passwordError}</span>
+            )}
           </div>
 
           <div className="checkbox-group">
@@ -159,4 +163,3 @@ export default function Signup() {
     </div>
   );
 }
-

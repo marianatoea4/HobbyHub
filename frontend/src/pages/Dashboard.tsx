@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 import "./Dashboard.css";
 
 export default function Dashboard() {
-  // Date provizorii (placeholder) pana se leaga backend-ul
+  // date provizorii (placeholder) pana se leaga backend-ul
   const recommendedEvents = [
     {
       id: 1,
@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      {/* Navbar-ul este integrat sus */}
+      {/* navbar-ul este integrat sus */}
       <Navbar />
 
       <main className="dashboard-content">
@@ -60,7 +60,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Coloana laterala: Activitatea ta */}
+          {/* coloana laterala: activitatea ta */}
           <section className="dashboard-section">
             <h2 className="section-title">Urmează să participi</h2>
 
