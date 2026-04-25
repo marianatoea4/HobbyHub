@@ -1,44 +1,60 @@
 .create-event-page {
   min-height: 100vh;
   background-color: #faf6e9;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333333;
+  margin-top: 60px;
 }
 
 .create-event-container {
-  padding: 40px 20px;
-  display: flex;
-  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  box-sizing: border-box;
 }
 
 .create-event-card {
   background-color: #fffdf6;
   width: 100%;
-  max-width: 1000px;
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
 }
 
 .create-title {
-  color: #333;
-  margin-bottom: 5px;
+  color: #333333;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
   text-align: center;
+  line-height: 1.2;
+}
+
+.highlight-word {
+  color: #a0c878;
+  font-weight: 800;
 }
 
 .create-subtitle {
-  color: #666;
+  color: #666666;
+  font-size: 1rem;
   text-align: center;
   margin-bottom: 35px;
+  line-height: 1.5;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  gap: 30px;
 }
 
 /* Responsive: o singură coloană pe mobil */
 @media (max-width: 768px) {
-  .form-grid { grid-template-columns: 1fr; }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form-group {
@@ -51,24 +67,75 @@
   font-weight: 600;
   color: #4a4a4a;
   margin-bottom: 8px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
-.form-group input, 
-.form-group textarea, 
+.form-group input,
+.form-group textarea,
 .form-group select {
   padding: 12px;
-  border: 2px solid #ddeb9d;
+  border: 2px solid #ddeb9d !important;
   border-radius: 10px;
   background: #fff;
   font-size: 1rem;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333333;
   transition: all 0.3s ease;
 }
 
-.form-group input:focus {
+/* Stiluri pentru calendar și input datetime */
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"],
+input[type="number"],
+input[type="text"] {
+  accent-color: #a0c878;
+  border: 2px solid #ddeb9d !important;
+}
+
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="number"]:focus,
+input[type="text"]:focus,
+input[type="file"]:focus {
+  border-color: #a0c878 !important;
+  box-shadow: 0 0 0 4px rgba(160, 200, 120, 0.1) !important;
+  background-color: #fafdf6 !important;
+}
+
+/* Stilizare pentru calendar picker (Chrome/Edge/Firefox) */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 4px;
+  opacity: 0.6;
+  filter: invert(0.3);
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder,
+.form-group select::placeholder {
+  color: #999999;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
-  border-color: #a0c878;
-  box-shadow: 0 0 0 4px rgba(160, 200, 120, 0.1);
+  border-color: #a0c878 !important;
+  box-shadow: 0 0 0 4px rgba(160, 200, 120, 0.1) !important;
+  background-color: #fafdf6 !important;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .form-row {
@@ -77,18 +144,31 @@
   gap: 15px;
 }
 
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Stil pentru placeholder hartă */
 .map-placeholder {
   width: 100%;
   height: 250px;
-  background-color: #f0f0f0;
+  background-color: #f5f8ed;
   border: 2px dashed #ddeb9d;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #888;
+  color: #888888;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.map-placeholder:hover {
+  background-color: #fafdf6;
+  border-color: #a0c878;
 }
 
 .create-btn {
@@ -99,25 +179,265 @@
   color: white;
   border: none;
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   cursor: pointer;
-  transition: transform 0.2s, background 0.3s;
+  transition: all 0.3s ease;
 }
 
-.create-btn:hover {
+.create-btn:hover:not(:disabled) {
   background-color: #8eb36a;
-  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(160, 200, 120, 0.3);
+  /* transform: translateY(-2px); */
+}
+
+.create-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .create-btn:disabled {
-  background-color: #ccc;
+  background-color: #cccccc;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .files-count {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #a0c878;
   margin-top: 5px;
-  font-weight: bold;
+  font-weight: 600;
+}
+
+/* ===== DatePicker Styling ===== */
+.date-picker-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddeb9d !important;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 1rem;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333333;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.date-picker-input:focus {
+  outline: none;
+  border-color: #a0c878 !important;
+  box-shadow: 0 0 0 4px rgba(160, 200, 120, 0.1);
+  background-color: #fafdf6;
+}
+
+.date-picker-input::placeholder {
+  color: #999999;
+}
+
+/* Lăsăm containerul să aibă dimensiunea lățimii inputului, dar popup-ul să fie compact */
+.react-datepicker-wrapper {
+  display: block;
+  width: 100%;
+}
+
+.react-datepicker-popper {
+  z-index: 1000 !important; /* Să fim siguri că stă deasupra tuturor elementelor */
+}
+
+.react-datepicker {
+  display: flex !important;
+  width: fit-content !important; /* Rezolvă problema lățimii uriașe și a ieșirii din ecran */
+  border: 2px solid #ddeb9d;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  background-color: #fffdf6;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+.react-datepicker__month-container {
+  flex: 1;
+  width: auto;
+}
+
+/* ---- HEADER DATĂ ȘI TIMP ---- */
+.react-datepicker__header {
+  background-color: #fffdf6;
+  padding: 0;
+  border-bottom: none;
+}
+
+/* Blocurile cu luna și "Time" */
+.react-datepicker__current-month,
+.react-datepicker-time__header {
+  background-color: #a0c878;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
+.react-datepicker__current-month {
+  color: white;
+}
+
+.react-datepicker-time__header {
+  color: white !important; /* Am făcut scrisul "Time" alb */
+}
+
+/* Zilele săptămânii */
+.react-datepicker__day-names {
+  background-color: #fffdf6;
+  padding: 12px 0 8px 0;
+}
+
+.react-datepicker__day-name {
+  color: #4a4a4a;
+  font-weight: 600;
+  width: 38px;
+  line-height: 38px;
+}
+
+/* ---- ZILE ȘI ORE ---- */
+.react-datepicker__day,
+.react-datepicker__time-list-item {
+  color: #333333;
+  transition: all 0.2s ease;
+}
+
+.react-datepicker__day {
+  width: 38px;
+  line-height: 38px;
+  margin: 4px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+/* Hover normal */
+.react-datepicker__day:hover,
+.react-datepicker__time-list-item:hover {
+  background-color: #e5dca5 !important;
+  color: #729a4a !important;
+  font-weight: 600;
+}
+
+/* Zi / Oră selectată */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__time-list-item--selected {
+  background-color: #ddeb9d !important;
+  color: #333333 !important;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+/* Hover pe selecție sau pe azi */
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected:hover,
+.react-datepicker__day--today:hover,
+.react-datepicker__time-list-item--selected:hover {
+  background-color: #a0c878 !important;
+  color: white !important;
+}
+
+/* Ziua de azi */
+.react-datepicker__day--today {
+  border: 2px solid #a0c878;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+.react-datepicker__day--outside-month {
+  color: #cccccc;
+}
+
+/* ---- CONTAINER ORE ---- */
+.react-datepicker__time-container {
+  width: 120px !important;
+  border-left: 1px solid #ddeb9d;
+  background-color: #fffdf6;
+}
+
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box {
+  width: 100%;
+  border-radius: 0;
+}
+
+.react-datepicker__time-list {
+  background-color: #fffdf6;
+}
+
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item {
+  padding: 10px;
+  height: auto;
+}
+
+/* ---- SĂGEȚI NAVIGARE ---- */
+.react-datepicker__navigation {
+  top: 14px;
+  transition: all 0.2s ease;
+}
+
+.react-datepicker__navigation:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white;
+}
+
+/* Mutăm săgeata din dreapta înapoi în calendar, ca să nu stea pe "Time" */
+.react-datepicker__navigation--next {
+  right: 130px !important; /* 120px lățimea zonei de timp + 10px spațiere */
+}
+
+/* =========================================
+   FIX ALINIERE PERFECTĂ COLOANE
+   ========================================= */
+
+/* 1. Forțăm toate input-urile să aibă exact aceeași înălțime (50px) */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+  height: 50px;
+  box-sizing: border-box;
+}
+
+/* 2. "Cumințim" input-ul de fișiere ca să fie identic cu restul */
+.form-group input[type="file"] {
+  height: 50px;
+  padding: 10px 12px; /* Ajustăm padding-ul ca să compenseze butonul intern */
+  box-sizing: border-box;
+  line-height: normal;
+}
+
+/* 3. Transformăm coloanele în flex-box-uri pentru alinierea la bază */
+.form-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 4. Spunem grupului care conține Harta să se întindă pe tot spațiul gol rămas */
+.form-column:nth-child(2) .form-group:last-child {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0; /* Îi scoatem marginea de jos ca să se alinieze cu 'Data și ora' */
+}
+
+/* 5. Întindem dreptunghiul hărții până jos */
+.map-placeholder {
+  /* flex-grow: 1; Magia care face harta să se lungească la fel de mult ca stânga */
+  min-height: 250px;
+  width: 100%;
 }

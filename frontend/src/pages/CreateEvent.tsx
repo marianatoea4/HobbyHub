@@ -1,34 +1,54 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar"; // Asigură-te că drumul e corect
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Navbar from "../components/Navbar";
 import "./CreateEvent.css";
 
 export default function CreateEvent() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  // State pentru datele text
+  // state-uri pentru datele text
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "Sport", // Categoria default
+    category: "Sport", // categoria default
     dateTime: "",
     capacity: 10,
-    lat: 44.4268, // Placeholder coordonate (București)
+    lat: 44.4268, // placeholder coordonate (Bucuresti)
     lng: 26.1025,
-    status: "Active"
+    status: "Active",
   });
 
-  // State pentru poze
+  // state pentru data si ora
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  // state pentru poze
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(e.target.files);
+  };
+
+  const handleDateChange = (date: Date | null) => {
+    setSelectedDate(date);
+    if (date) {
+      // convertim data in ISO format pentru backend
+      setFormData((prev) => ({
+        ...prev,
+        dateTime: date.toISOString(),
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,11 +56,14 @@ export default function CreateEvent() {
     setLoading(true);
 
     const data = new FormData();
-    
-    // Adăugăm obiectul de eveniment ca Blob JSON
-    data.append("event", new Blob([JSON.stringify(formData)], { type: "application/json" }));
 
-    // Adăugăm fișierele
+    // adaugam obiectul de eveniment ca blob JSON
+    data.append(
+      "event",
+      new Blob([JSON.stringify(formData)], { type: "application/json" }),
+    );
+
+    // adaugam fisierele
     if (selectedFiles) {
       Array.from(selectedFiles).forEach((file) => {
         data.append("files", file);
@@ -50,12 +73,12 @@ export default function CreateEvent() {
     try {
       const response = await fetch("http://localhost:8080/api/events/create", {
         method: "POST",
-        body: data, // Browserul setează automat "multipart/form-data"
+        body: data, // browserul setează automat "multipart/form-data"
       });
 
       if (response.ok) {
         alert("Eveniment creat cu succes!");
-        navigate("/events"); // Redirecționare către explorare
+        navigate("/events"); // redirectionare catre explorare
       } else {
         alert("Eroare la crearea evenimentului.");
       }
@@ -70,30 +93,52 @@ export default function CreateEvent() {
   return (
     <div className="create-event-page">
       <Navbar />
-      
+
       <div className="create-event-container">
         <div className="create-event-card">
-          <h1 className="create-title">Organizează un Hobby</h1>
-          <p className="create-subtitle">Completează detaliile evenimentului tău.</p>
+          <h1 className="create-title">
+            Organizează un <span className="highlight-word">EVENIMENT</span>
+          </h1>
+          <p className="create-subtitle">
+            Completează detaliile evenimentului tău.
+          </p>
 
           <form onSubmit={handleSubmit} className="event-form">
             <div className="form-grid">
-              {/* Coloana Stângă: Info de bază */}
+              {/* Coloana stanga: info de baza */}
               <div className="form-column">
                 <div className="form-group">
-                  <label>Titlu Eveniment</label>
-                  <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Ex: Meci de fotbal amatori" required />
+                  <label>Titlu eveniment</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="Ex: Meci de fotbal amatori"
+                    required
+                  />
                 </div>
 
                 <div className="form-group">
                   <label>Descriere</label>
-                  <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Spune-le oamenilor despre ce este vorba..." rows={4} required />
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Spune-le oamenilor despre ce este vorba..."
+                    rows={4}
+                    required
+                  />
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
                     <label>Categorie</label>
-                    <select name="category" value={formData.category} onChange={handleChange}>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                    >
                       <option value="Sport">Sport</option>
                       <option value="Gaming">Gaming</option>
                       <option value="Gătit">Gătit</option>
@@ -104,25 +149,50 @@ export default function CreateEvent() {
                   </div>
 
                   <div className="form-group">
-                    <label>Capacitate (pers.)</label>
-                    <input type="number" name="capacity" value={formData.capacity} onChange={handleChange} min="2" required />
+                    <label>Capacitate (nr. persoane)</label>
+                    <input
+                      type="number"
+                      name="capacity"
+                      value={formData.capacity}
+                      onChange={handleChange}
+                      min="2"
+                      required
+                    />
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label>Data și Ora</label>
-                  <input type="datetime-local" name="dateTime" value={formData.dateTime} onChange={handleChange} required />
+                  <label>Data și ora</label>
+                  <DatePicker
+                    selected={selectedDate}
+                    onChange={handleDateChange}
+                    showTimeSelect
+                    timeIntervals={30}
+                    dateFormat="dd/MM/yyyy HH:mm"
+                    placeholderText="Selectează data și ora"
+                    className="date-picker-input"
+                    required
+                  />
                 </div>
               </div>
 
               {/* Coloana Dreaptă: Media și Locație */}
               <div className="form-column">
                 <div className="form-group">
-                  <label>Adaugă Poze (poți selecta mai multe)</label>
+                  <label>Adaugă poze (poți selecta mai multe)</label>
                   <div className="file-input-wrapper">
-                    <input type="file" multiple accept="image/*" onChange={handleFileChange} />
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
                   </div>
-                  {selectedFiles && <p className="files-count">{selectedFiles.length} fișiere selectate</p>}
+                  {selectedFiles && (
+                    <p className="files-count">
+                      {selectedFiles.length} fișiere selectate
+                    </p>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -137,7 +207,7 @@ export default function CreateEvent() {
             </div>
 
             <button type="submit" className="create-btn" disabled={loading}>
-              {loading ? "Se creează..." : "Publică Evenimentul"}
+              {loading ? "Se creează..." : "Publică evenimentul"}
             </button>
           </form>
         </div>
