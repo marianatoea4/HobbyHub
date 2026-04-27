@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./Events.css";
 
 const CustomDropdown = ({
@@ -273,6 +274,7 @@ export default function Events() {
           )}
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

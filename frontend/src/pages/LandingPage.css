@@ -179,12 +179,3 @@
   color: #666666;
   line-height: 1.5;
 }
-
-/* footer simplu */
-.landing-footer {
-  text-align: center;
-  padding: 20px;
-  color: #666666;
-  font-size: 0.9rem;
-  border-top: 1px solid #ddeb9d;
-}
