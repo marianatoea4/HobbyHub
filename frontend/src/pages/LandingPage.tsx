@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import "./LandingPage.css";
+import Footer from "../components/Footer";
 
 function PaletteIcon() {
   return (
@@ -138,10 +139,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* footer */}
-      <footer className="landing-footer">
-        <p>&copy; 2026 HobbyHub. Toate drepturile rezervate.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

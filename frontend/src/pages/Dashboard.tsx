@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./Dashboard.css";
 
 export default function Dashboard() {
@@ -83,6 +84,7 @@ export default function Dashboard() {
           </section>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

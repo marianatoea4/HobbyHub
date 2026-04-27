@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./CreateEvent.css";
 
 export default function CreateEvent() {
@@ -212,6 +213,7 @@ export default function CreateEvent() {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

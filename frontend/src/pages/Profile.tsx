@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 // interfat pentru datele utilizatorului primite de la API
 interface User {
@@ -211,202 +212,211 @@ export default function Profile() {
       </div>
     );
 
+  // AICI ESTE STRUCTURA NOUĂ PENTRU A REZOLVA POZIȚIONAREA FOOTER-ULUI
   return (
-    <div className="profile-page-container">
+    <div className="profile-wrapper">
       <Navbar />
-      <div className="profile-layout">
-        {/* coloana stanga: sidebar */}
-        <aside className="profile-sidebar profile-card">
-          <div className="profile-avatar-container">
-            <AvatarWithInitials
-              firstName={user.firstName}
-              lastName={user.lastName}
-            />
-          </div>
 
-          {!isEditing && !isChangingPassword ? (
-            <>
-              <h1 className="profile-name">
-                {user.firstName} {user.lastName}
-              </h1>
-              <p className="profile-email">{user.email}</p>
-              <p className="profile-bio">{user.bio}</p>
-              <div className="profile-actions">
-                <button className="btn-edit-profile" onClick={handleEditToggle}>
-                  Editează profilul
-                </button>
-                <button
-                  className="btn-change-password"
-                  onClick={handleChangePasswordToggle}
-                >
-                  Schimbă parola
-                </button>
-                <button
-                  className="btn-logout"
-                  onClick={handleLogout}
-                  style={{ marginTop: "10px", backgroundColor: "#ff4d4d" }}
-                >
-                  Deconectare
-                </button>
-              </div>
-            </>
-          ) : isEditing ? (
-            <div className="edit-form">
-              <h3>Editează Profilul</h3>
-              <div className="input-group">
-                <label>Prenume</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={editData.firstName}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="input-group">
-                <label>Nume</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={editData.lastName}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="profile-actions">
-                <button
-                  className="btn-edit-profile save-btn"
-                  onClick={handleSave}
-                >
-                  Salvează
-                </button>
-                <button
-                  className="btn-edit-profile cancel-btn"
-                  onClick={handleEditToggle}
-                >
-                  Anulează
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="edit-form">
-              <h3>Schimbă parola</h3>
-              <div className="input-group">
-                <label>Parola actuală</label>
-                <input
-                  type="password"
-                  name="currentPassword"
-                  value={passwordData.currentPassword}
-                  onChange={handlePasswordInputChange}
-                />
-              </div>
-              <div className="input-group">
-                <label>Parola nouă</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordInputChange}
-                />
-              </div>
-              <div className="input-group">
-                <label>Confirmă parola nouă</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={passwordData.confirmPassword}
-                  onChange={handlePasswordInputChange}
-                />
-              </div>
-              <div className="profile-actions">
-                <button
-                  className="btn-change-password save-btn"
-                  onClick={handlePasswordSave}
-                >
-                  Salvează parola
-                </button>
-                <button
-                  className="btn-change-password cancel-btn"
-                  onClick={handleChangePasswordToggle}
-                >
-                  Anulează
-                </button>
-              </div>
-            </div>
-          )}
-        </aside>
-
-        {/* coloana dreapta: main content */}
-        <main className="profile-main-content">
-          {/* sectiunea de statistici */}
-          <section className="profile-stats-grid">
-            <div className="stat-item profile-card">
-              <span className="stat-value">{user.organizedEventsCount}</span>
-              <span className="stat-label">Evenimente organizate</span>
-            </div>
-            <div className="stat-item profile-card">
-              <span className="stat-value">{user.joinedEventsCount}</span>
-              <span className="stat-label">Evenimente înscrise</span>
-            </div>
-            <div className="stat-item profile-card">
-              <span className="stat-value">
-                {user.rating}
-                <StarIcon />
-              </span>
-              <span className="stat-label">Rating utilizator</span>
-            </div>
-          </section>
-
-          {/* sectiunea de activitate cu tab-uri */}
-          <section className="profile-activity-card profile-card">
-            <div className="profile-tabs-header">
-              <button
-                className={`tab-button ${activeTab === "organized" ? "active" : ""}`}
-                onClick={() => setActiveTab("organized")}
-              >
-                Evenimentele mele
-              </button>
-              <button
-                className={`tab-button ${activeTab === "joined" ? "active" : ""}`}
-                onClick={() => setActiveTab("joined")}
-              >
-                Istoric înscrieri
-              </button>
-              <button
-                className={`tab-button ${activeTab === "reports" ? "active" : ""}`}
-                onClick={() => setActiveTab("reports")}
-              >
-                Raportări
-              </button>
+      {/* Containerul paginii fără footer în interiorul lui */}
+      <div className="profile-page-container">
+        <div className="profile-layout">
+          {/* coloana stanga: sidebar */}
+          <aside className="profile-sidebar profile-card">
+            <div className="profile-avatar-container">
+              <AvatarWithInitials
+                firstName={user.firstName}
+                lastName={user.lastName}
+              />
             </div>
 
-            <div className="profile-tabs-content">
-              {activeTab === "organized" && (
-                <div className="tab-pane">
-                  <h3>Evenimente organizate de tine</h3>
-                  <div className="placeholder-list-item">
-                    Atelier de codare - Azi 19:00
-                  </div>
+            {!isEditing && !isChangingPassword ? (
+              <>
+                <h1 className="profile-name">
+                  {user.firstName} {user.lastName}
+                </h1>
+                <p className="profile-email">{user.email}</p>
+                <p className="profile-bio">{user.bio}</p>
+                <div className="profile-actions">
+                  <button
+                    className="btn-edit-profile"
+                    onClick={handleEditToggle}
+                  >
+                    Editează profilul
+                  </button>
+                  <button
+                    className="btn-change-password"
+                    onClick={handleChangePasswordToggle}
+                  >
+                    Schimbă parola
+                  </button>
+                  <button
+                    className="btn-logout"
+                    onClick={handleLogout}
+                    style={{ marginTop: "10px", backgroundColor: "#ff4d4d" }}
+                  >
+                    Deconectare
+                  </button>
                 </div>
-              )}
-              {activeTab === "joined" && (
-                <div className="tab-pane">
-                  <h3>Evenimente la care ai participat</h3>
-                  <div className="placeholder-list-item">
-                    Meetup HobbyHub - Ieri
-                  </div>
+              </>
+            ) : isEditing ? (
+              <div className="edit-form">
+                <h3>Editează Profilul</h3>
+                <div className="input-group">
+                  <label>Prenume</label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={editData.firstName}
+                    onChange={handleInputChange}
+                  />
                 </div>
-              )}
-              {activeTab === "reports" && (
-                <div className="tab-pane">
-                  <h3>Istoricul raportărilor tale</h3>
-                  <div className="placeholder-list-item">
-                    Nu există raportări active.
-                  </div>
+                <div className="input-group">
+                  <label>Nume</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={editData.lastName}
+                    onChange={handleInputChange}
+                  />
                 </div>
-              )}
-            </div>
-          </section>
-        </main>
+                <div className="profile-actions">
+                  <button
+                    className="btn-edit-profile save-btn"
+                    onClick={handleSave}
+                  >
+                    Salvează
+                  </button>
+                  <button
+                    className="btn-edit-profile cancel-btn"
+                    onClick={handleEditToggle}
+                  >
+                    Anulează
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="edit-form">
+                <h3>Schimbă parola</h3>
+                <div className="input-group">
+                  <label>Parola actuală</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    value={passwordData.currentPassword}
+                    onChange={handlePasswordInputChange}
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Parola nouă</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordInputChange}
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Confirmă parola nouă</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordInputChange}
+                  />
+                </div>
+                <div className="profile-actions">
+                  <button
+                    className="btn-change-password save-btn"
+                    onClick={handlePasswordSave}
+                  >
+                    Salvează parola
+                  </button>
+                  <button
+                    className="btn-change-password cancel-btn"
+                    onClick={handleChangePasswordToggle}
+                  >
+                    Anulează
+                  </button>
+                </div>
+              </div>
+            )}
+          </aside>
+
+          {/* coloana dreapta: main content */}
+          <main className="profile-main-content">
+            {/* sectiunea de statistici */}
+            <section className="profile-stats-grid">
+              <div className="stat-item profile-card">
+                <span className="stat-value">{user.organizedEventsCount}</span>
+                <span className="stat-label">Evenimente organizate</span>
+              </div>
+              <div className="stat-item profile-card">
+                <span className="stat-value">{user.joinedEventsCount}</span>
+                <span className="stat-label">Evenimente înscrise</span>
+              </div>
+              <div className="stat-item profile-card">
+                <span className="stat-value">
+                  {user.rating}
+                  <StarIcon />
+                </span>
+                <span className="stat-label">Rating utilizator</span>
+              </div>
+            </section>
+
+            {/* sectiunea de activitate cu tab-uri */}
+            <section className="profile-activity-card profile-card">
+              <div className="profile-tabs-header">
+                <button
+                  className={`tab-button ${activeTab === "organized" ? "active" : ""}`}
+                  onClick={() => setActiveTab("organized")}
+                >
+                  Evenimentele mele
+                </button>
+                <button
+                  className={`tab-button ${activeTab === "joined" ? "active" : ""}`}
+                  onClick={() => setActiveTab("joined")}
+                >
+                  Istoric înscrieri
+                </button>
+                <button
+                  className={`tab-button ${activeTab === "reports" ? "active" : ""}`}
+                  onClick={() => setActiveTab("reports")}
+                >
+                  Raportări
+                </button>
+              </div>
+
+              <div className="profile-tabs-content">
+                {activeTab === "organized" && (
+                  <div className="tab-pane">
+                    <h3>Evenimente organizate de tine</h3>
+                    <div className="placeholder-list-item">
+                      Atelier de codare - Azi 19:00
+                    </div>
+                  </div>
+                )}
+                {activeTab === "joined" && (
+                  <div className="tab-pane">
+                    <h3>Evenimente la care ai participat</h3>
+                    <div className="placeholder-list-item">
+                      Meetup HobbyHub - Ieri
+                    </div>
+                  </div>
+                )}
+                {activeTab === "reports" && (
+                  <div className="tab-pane">
+                    <h3>Istoricul raportărilor tale</h3>
+                    <div className="placeholder-list-item">
+                      Nu există raportări active.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          </main>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }
