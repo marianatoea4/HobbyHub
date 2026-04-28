@@ -5,16 +5,79 @@ import "react-datepicker/dist/react-datepicker.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./CreateEvent.css";
+import LocationPicker from "../components/LocationPicker";
+import { getAddressFromCoords } from "../utils/geocoding";
+
+const CustomDropdown = ({
+  options,
+  value,
+  onChange,
+  defaultLabel,
+}: {
+  options: string[];
+  value: string;
+  onChange: (val: string) => void;
+  defaultLabel: string;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div
+      className="custom-select-container"
+      tabIndex={0}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setIsOpen(false);
+        }
+      }}
+    >
+      <div
+        className={`custom-select-header ${isOpen ? "open" : ""}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{value || defaultLabel}</span>
+        <span className="custom-select-arrow">▼</span>
+      </div>
+
+      {isOpen && (
+        <ul className="custom-select-list">
+          <li
+            className={`custom-select-item ${value === "" ? "selected" : ""}`}
+            onClick={() => {
+              onChange("");
+              setIsOpen(false);
+            }}
+          >
+            {defaultLabel}
+          </li>
+          {options.map((opt) => (
+            <li
+              key={opt}
+              className={`custom-select-item ${value === opt ? "selected" : ""}`}
+              onClick={() => {
+                onChange(opt);
+                setIsOpen(false);
+              }}
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 export default function CreateEvent() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [readableAddress, setReadableAddress] = useState("Se încarcă locația...");
 
   // state-uri pentru datele text
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "Sport", // categoria default
+    category: "", // nicio categorie selectata by default
     dateTime: "",
     capacity: 10,
     lat: 44.4268, // placeholder coordonate (Bucuresti)
@@ -27,6 +90,13 @@ export default function CreateEvent() {
 
   // state pentru poze
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+
+  const handleLocationChange = async (lat: number, lng: number) => {
+        setFormData(prev => ({ ...prev, lat, lng }));
+
+        const address = await getAddressFromCoords(lat, lng);
+        setReadableAddress(address);
+    };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -61,24 +131,29 @@ export default function CreateEvent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-    const data = new FormData();
-
-    // Preluam userul curent din localStorage pentru a seta organizatorul
-    const userStr = localStorage.getItem("user");
-    let organizer = null;
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        organizer = { id: user.id };
-      } catch {}
+    if (!loggedInUser.id) {
+        alert("Trebuie să fii logat pentru a crea un eveniment!");
+        setLoading(false);
+        return;
     }
 
+    // const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+    console.log("User logat extras din storage:", loggedInUser);  
+
+    const eventToSave = {
+        ...formData,
+        organizerId: loggedInUser.id // Trimitem ID-ul contului logat
+    };
+
     // adaugam obiectul de eveniment ca blob JSON (cu organizatorul inclus)
-    const eventPayload = { ...formData, organizer };
+    const data = new FormData();
+
+    const eventPayload = { ...eventToSave, organizer: { id: loggedInUser.id } };
     data.append(
-      "event",
-      new Blob([JSON.stringify(eventPayload)], { type: "application/json" }),
+        "event",
+        new Blob([JSON.stringify(eventPayload)], { type: "application/json" }),
     );
 
     // adaugam fisierele
@@ -152,18 +227,21 @@ export default function CreateEvent() {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Categorie</label>
-                    <select
-                      name="category"
+                    <CustomDropdown
+                      defaultLabel="Alege categoria"
                       value={formData.category}
-                      onChange={handleChange}
-                    >
-                      <option value="Sport">Sport</option>
-                      <option value="Gaming">Gaming</option>
-                      <option value="Gătit">Gătit</option>
-                      <option value="Artă">Artă</option>
-                      <option value="Muzică">Muzică</option>
-                      <option value="Altele">Altele</option>
-                    </select>
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, category: val }))
+                      }
+                      options={[
+                        "Sport",
+                        "Gaming",
+                        "Gătit",
+                        "Artă",
+                        "Muzică",
+                        "Altele",
+                      ]}
+                    />
                   </div>
 
                   <div className="form-group">
@@ -214,12 +292,12 @@ export default function CreateEvent() {
                 </div>
 
                 <div className="form-group">
-                  <label>Locație (Google Maps)</label>
-                  {/* AICI VA VENI COMPONENTA DE GOOGLE MAPS */}
-                  <div className="map-placeholder">
-                    <p>Harta Google Maps va fi integrată aici.</p>
-                    <small>Momentan folosim coordonate implicite.</small>
-                  </div>
+                  <label>Locație</label>
+                  <LocationPicker 
+                    onLocationSelect={handleLocationChange} />
+                    <div className="address-display-box">
+                      <p className="address-text">{readableAddress}</p>
+                    </div>
                 </div>
               </div>
             </div>
