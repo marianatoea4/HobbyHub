@@ -6,6 +6,66 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./CreateEvent.css";
 
+const CustomDropdown = ({
+  options,
+  value,
+  onChange,
+  defaultLabel,
+}: {
+  options: string[];
+  value: string;
+  onChange: (val: string) => void;
+  defaultLabel: string;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div
+      className="custom-select-container"
+      tabIndex={0}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setIsOpen(false);
+        }
+      }}
+    >
+      <div
+        className={`custom-select-header ${isOpen ? "open" : ""}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{value || defaultLabel}</span>
+        <span className="custom-select-arrow">▼</span>
+      </div>
+
+      {isOpen && (
+        <ul className="custom-select-list">
+          <li
+            className={`custom-select-item ${value === "" ? "selected" : ""}`}
+            onClick={() => {
+              onChange("");
+              setIsOpen(false);
+            }}
+          >
+            {defaultLabel}
+          </li>
+          {options.map((opt) => (
+            <li
+              key={opt}
+              className={`custom-select-item ${value === opt ? "selected" : ""}`}
+              onClick={() => {
+                onChange(opt);
+                setIsOpen(false);
+              }}
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 export default function CreateEvent() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -14,7 +74,7 @@ export default function CreateEvent() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "Sport", // categoria default
+    category: "", // nicio categorie selectata by default
     dateTime: "",
     capacity: 10,
     lat: 44.4268, // placeholder coordonate (Bucuresti)
@@ -135,18 +195,21 @@ export default function CreateEvent() {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Categorie</label>
-                    <select
-                      name="category"
+                    <CustomDropdown
+                      defaultLabel="Alege categoria"
                       value={formData.category}
-                      onChange={handleChange}
-                    >
-                      <option value="Sport">Sport</option>
-                      <option value="Gaming">Gaming</option>
-                      <option value="Gătit">Gătit</option>
-                      <option value="Artă">Artă</option>
-                      <option value="Muzică">Muzică</option>
-                      <option value="Altele">Altele</option>
-                    </select>
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, category: val }))
+                      }
+                      options={[
+                        "Sport",
+                        "Gaming",
+                        "Gătit",
+                        "Artă",
+                        "Muzică",
+                        "Altele",
+                      ]}
+                    />
                   </div>
 
                   <div className="form-group">
