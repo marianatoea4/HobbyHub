@@ -21,10 +21,6 @@ public class EventController {
             @RequestPart(value = "files", required = false) MultipartFile[] files) {
 
         try {
-            // Logica pentru Google Maps API:
-            // Frontend-ul va trimite lat și lng în interiorul obiectului 'event'.
-            // Aici am putea adăuga o validare suplimentară pentru locație dacă e necesar.
-
             Event newEvent = eventService.createEvent(event, files);
             return ResponseEntity.ok(newEvent);
         } catch (Exception e) {

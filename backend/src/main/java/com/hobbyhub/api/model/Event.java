@@ -1,5 +1,6 @@
 package com.hobbyhub.api.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -70,4 +71,12 @@ public class Event {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    @JsonProperty("organizerId")
+    public void setOrganizerById(Long userId) {
+        if (userId != null) {
+            this.organizer = new User();
+            this.organizer.setId(userId);
+        }
+    }
 }
