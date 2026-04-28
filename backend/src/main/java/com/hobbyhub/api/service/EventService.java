@@ -3,6 +3,7 @@ import com.hobbyhub.api.model.Event;
 import com.hobbyhub.api.model.EventImage;
 import com.hobbyhub.api.repository.EventImageRepository;
 import com.hobbyhub.api.repository.EventRepository;
+import com.hobbyhub.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,9 +20,17 @@ public class EventService {
     @Autowired
     EventRepository eventRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private final String UPLOAD_DIR = "uploads/events/";
 
     public Event createEvent(Event event, MultipartFile[] files) throws IOException {
+        if (event.getOrganizer() != null && event.getOrganizer().getId() != null) {
+            userRepository.findById(event.getOrganizer().getId())
+                    .ifPresent(event::setOrganizer);
+        }
+
         Event savedEvent = eventRepository.save(event);
 
         if (files != null && files.length > 0) {

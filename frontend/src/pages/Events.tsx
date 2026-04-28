@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./Events.css";
@@ -74,9 +75,16 @@ interface EventData {
   lat: number;
   lng: number;
   images: { id: number; imageUrl: string }[];
+  organizer: {
+    id: number;
+    firstName: string;
+    lastName: string;
+  } | null;
 }
 
 export default function Events() {
+  const navigate = useNavigate();
+
   // stochez evenimentele reale venite din baza de date
   const [events, setEvents] = useState<EventData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,6 +136,17 @@ export default function Events() {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // Preluam ID-ul utilizatorului curent
+  const getCurrentUserId = (): number | null => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr).id;
+    } catch {
+      return null;
+    }
   };
 
   return (
@@ -253,7 +272,21 @@ export default function Events() {
                     <span className="event-spots">
                       {event.capacity} locuri libere
                     </span>
-                    <button className="btn-view-event">Vezi detalii</button>
+                    <div className="event-footer-buttons">
+                      {event.organizer && event.organizer.id !== getCurrentUserId() && (
+                        <button
+                          className="btn-contact-organizer"
+                          onClick={() =>
+                            navigate(
+                              `/messages?userId=${event.organizer!.id}&eventId=${event.id}`
+                            )
+                          }
+                        >
+                          ✉ Contactează
+                        </button>
+                      )}
+                      <button className="btn-view-event">Vezi detalii</button>
+                    </div>
                   </div>
                 </div>
               </div>

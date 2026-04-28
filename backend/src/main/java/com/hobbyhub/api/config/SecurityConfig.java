@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Acces liber pentru login/register
-                        .requestMatchers("/h2-console/**", "/api/users/**","/api/events/**", "/uploads/**").permitAll()
+                        .requestMatchers("/h2-console/**", "/api/users/**","/api/events/**", "/uploads/**", "/api/messages/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

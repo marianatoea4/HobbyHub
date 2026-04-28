@@ -32,8 +32,6 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  position: sticky;
-  top: 40px;
   height: fit-content;
 }
 
@@ -54,6 +52,15 @@
   color: white;
   font-size: 3rem;
   font-weight: 700;
+  box-shadow: 0 8px 20px rgba(160, 200, 120, 0.3);
+}
+
+.profile-avatar-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 5px solid #a0c878;
+  object-fit: cover;
   box-shadow: 0 8px 20px rgba(160, 200, 120, 0.3);
 }
 

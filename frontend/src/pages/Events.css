@@ -157,6 +157,29 @@
   background-color: #8eb36a;
 }
 
+.event-footer-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-contact-organizer {
+  background-color: transparent;
+  color: #a0c878;
+  border: 2px solid #a0c878;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-contact-organizer:hover {
+  background-color: #a0c878;
+  color: white;
+}
+
 /* aici am customizat dropdown-ul ca era prea basic */
 
 .custom-select-container {
