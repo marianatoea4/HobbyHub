@@ -125,13 +125,28 @@ export default function CreateEvent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-    const data = new FormData();
+    if (!loggedInUser.id) {
+        alert("Trebuie să fii logat pentru a crea un eveniment!");
+        setLoading(false);
+        return;
+    }
+
+    // const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+    console.log("User logat extras din storage:", loggedInUser);  
+
+    const eventToSave = {
+        ...formData,
+        organizerId: loggedInUser.id // Trimitem ID-ul contului logat
+    };
 
     // adaugam obiectul de eveniment ca blob JSON
+    const data = new FormData();
+
     data.append(
-      "event",
-      new Blob([JSON.stringify(formData)], { type: "application/json" }),
+        "event",
+        new Blob([JSON.stringify(eventToSave)], { type: "application/json" }),
     );
 
     // adaugam fisierele
