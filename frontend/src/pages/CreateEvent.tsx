@@ -44,10 +44,16 @@ export default function CreateEvent() {
   const handleDateChange = (date: Date | null) => {
     setSelectedDate(date);
     if (date) {
-      // convertim data in ISO format pentru backend
+      // Formam data ca string local (fara conversie la UTC)
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const localISO = `${year}-${month}-${day}T${hours}:${minutes}:00`;
       setFormData((prev) => ({
         ...prev,
-        dateTime: date.toISOString(),
+        dateTime: localISO,
       }));
     }
   };
@@ -58,10 +64,21 @@ export default function CreateEvent() {
 
     const data = new FormData();
 
-    // adaugam obiectul de eveniment ca blob JSON
+    // Preluam userul curent din localStorage pentru a seta organizatorul
+    const userStr = localStorage.getItem("user");
+    let organizer = null;
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        organizer = { id: user.id };
+      } catch {}
+    }
+
+    // adaugam obiectul de eveniment ca blob JSON (cu organizatorul inclus)
+    const eventPayload = { ...formData, organizer };
     data.append(
       "event",
-      new Blob([JSON.stringify(formData)], { type: "application/json" }),
+      new Blob([JSON.stringify(eventPayload)], { type: "application/json" }),
     );
 
     // adaugam fisierele

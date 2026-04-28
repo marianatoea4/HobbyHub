@@ -11,6 +11,7 @@ interface User {
   lastName: string;
   email: string;
   bio?: string;
+  profilePicture?: string;
   organizedEventsCount?: number;
   joinedEventsCount?: number;
   rating?: number;
@@ -37,13 +38,25 @@ function StarIcon() {
 function AvatarWithInitials({
   firstName,
   lastName,
+  profilePicture,
 }: {
   firstName: string;
   lastName: string;
+  profilePicture?: string;
 }) {
   const initials = (
     (firstName?.charAt(0) || "") + (lastName?.charAt(0) || "")
   ).toUpperCase();
+
+  if (profilePicture) {
+    return (
+      <img
+        src={`http://localhost:8080${profilePicture}`}
+        alt="Profil"
+        className="profile-avatar-img"
+      />
+    );
+  }
 
   return <div className="profile-avatar-initials">{initials}</div>;
 }
@@ -56,7 +69,8 @@ export default function Profile() {
 
   // stari pentru editare profil
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ firstName: "", lastName: "" });
+  const [editData, setEditData] = useState({ firstName: "", lastName: "", bio: "" });
+  const [selectedProfilePic, setSelectedProfilePic] = useState<File | null>(null);
 
   // stari pentru schimbare parola
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -99,12 +113,11 @@ export default function Profile() {
       .then((data) => {
         setUser({
           ...data,
-          bio: "Pasionat de tehnologie și hobby-uri noi. Utilizator activ HobbyHub!",
           organizedEventsCount: 3,
           joinedEventsCount: 8,
           rating: 4.9,
         });
-        setEditData({ firstName: data.firstName, lastName: data.lastName });
+        setEditData({ firstName: data.firstName, lastName: data.lastName, bio: data.bio || "" });
         setLoading(false);
       })
       .catch((err) => {
@@ -120,8 +133,9 @@ export default function Profile() {
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
     setIsChangingPassword(false);
+    setSelectedProfilePic(null);
     if (user) {
-      setEditData({ firstName: user.firstName, lastName: user.lastName });
+      setEditData({ firstName: user.firstName, lastName: user.lastName, bio: user.bio || "" });
     }
   };
 
@@ -135,7 +149,9 @@ export default function Profile() {
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
@@ -147,21 +163,47 @@ export default function Profile() {
     setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    fetch(`http://localhost:8080/api/users/${userId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editData),
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Eroare la salvarea modificărilor");
-        return response.json();
-      })
-      .then(() => {
-        setIsEditing(false);
-        fetchUserData();
-      })
-      .catch((err) => alert(err.message));
+  const handleSave = async () => {
+    try {
+      // 1. Salvam datele text (nume, prenume, bio)
+      const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editData),
+      });
+      if (!response.ok) throw new Error("Eroare la salvarea modificărilor");
+
+      // 2. Daca s-a selectat o poza noua, o uploadam
+      if (selectedProfilePic) {
+        const formData = new FormData();
+        formData.append("file", selectedProfilePic);
+
+        const picResponse = await fetch(
+          `http://localhost:8080/api/users/${userId}/profile-picture`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        if (!picResponse.ok) throw new Error("Eroare la salvarea imaginii");
+      }
+
+      // Actualizam si localStorage
+      const updatedUser = await response.json();
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        parsed.firstName = updatedUser.firstName;
+        parsed.lastName = updatedUser.lastName;
+        localStorage.setItem("user", JSON.stringify(parsed));
+      }
+
+      setIsEditing(false);
+      setSelectedProfilePic(null);
+      fetchUserData();
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   const handlePasswordSave = () => {
@@ -226,6 +268,7 @@ export default function Profile() {
               <AvatarWithInitials
                 firstName={user.firstName}
                 lastName={user.lastName}
+                profilePicture={user.profilePicture}
               />
             </div>
 
@@ -235,7 +278,7 @@ export default function Profile() {
                   {user.firstName} {user.lastName}
                 </h1>
                 <p className="profile-email">{user.email}</p>
-                <p className="profile-bio">{user.bio}</p>
+                <p className="profile-bio">{user.bio || "Adaugă o descriere despre tine!"}</p>
                 <div className="profile-actions">
                   <button
                     className="btn-edit-profile"
@@ -278,6 +321,31 @@ export default function Profile() {
                     value={editData.lastName}
                     onChange={handleInputChange}
                   />
+                </div>
+                <div className="input-group">
+                  <label>Despre mine</label>
+                  <textarea
+                    name="bio"
+                    value={editData.bio}
+                    onChange={handleInputChange}
+                    rows={3}
+                    placeholder="Spune-le celorlalți despre tine..."
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Poză de profil</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setSelectedProfilePic(e.target.files?.[0] || null)
+                    }
+                  />
+                  {selectedProfilePic && (
+                    <p style={{ fontSize: "0.8rem", color: "#a0c878", marginTop: "4px" }}>
+                      ✓ {selectedProfilePic.name}
+                    </p>
+                  )}
                 </div>
                 <div className="profile-actions">
                   <button
