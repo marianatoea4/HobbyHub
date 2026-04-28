@@ -5,6 +5,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./CreateEvent.css";
+import LocationPicker from "../components/LocationPicker";
+import { getAddressFromCoords } from "../utils/geocoding";
 
 const CustomDropdown = ({
   options,
@@ -69,6 +71,7 @@ const CustomDropdown = ({
 export default function CreateEvent() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [readableAddress, setReadableAddress] = useState("Se încarcă locația...");
 
   // state-uri pentru datele text
   const [formData, setFormData] = useState({
@@ -87,6 +90,13 @@ export default function CreateEvent() {
 
   // state pentru poze
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+
+  const handleLocationChange = async (lat: number, lng: number) => {
+        setFormData(prev => ({ ...prev, lat, lng }));
+
+        const address = await getAddressFromCoords(lat, lng);
+        setReadableAddress(address);
+    };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -260,12 +270,12 @@ export default function CreateEvent() {
                 </div>
 
                 <div className="form-group">
-                  <label>Locație (Google Maps)</label>
-                  {/* AICI VA VENI COMPONENTA DE GOOGLE MAPS */}
-                  <div className="map-placeholder">
-                    <p>Harta Google Maps va fi integrată aici.</p>
-                    <small>Momentan folosim coordonate implicite.</small>
-                  </div>
+                  <label>Locație</label>
+                  <LocationPicker 
+                    onLocationSelect={handleLocationChange} />
+                    <div className="address-display-box">
+                      <p className="address-text">{readableAddress}</p>
+                    </div>
                 </div>
               </div>
             </div>
