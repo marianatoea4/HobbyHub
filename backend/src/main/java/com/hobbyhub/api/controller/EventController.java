@@ -38,4 +38,12 @@ public class EventController {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    // metoda pentru preluarea evenimentelor dupa ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Event> getEventById(@PathVariable Long id) {
+        return eventService.getEventById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

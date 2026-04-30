@@ -32,7 +32,14 @@ public class Event {
     private Double lat;
     private Double lng;
 
+    @Column(name = "city")
+    private String city;
+
     private String status;
+
+    public String getCity() { return city; }
+
+    public void setCity(String city) { this.city = city; }
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventImage> images = new ArrayList<>();
