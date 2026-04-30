@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./Events.css";
-import { useNavigate } from "react-router-dom";
 
 const CustomDropdown = ({
   options,
@@ -120,7 +119,6 @@ const EventAddress = ({ lat, lng }: { lat: number; lng: number }) => {
 
 
 export default function Events() {
-  const navigate = useNavigate();
 
   // stochez evenimentele reale venite din baza de date
   const [events, setEvents] = useState<EventData[]>([]);
