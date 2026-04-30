@@ -260,6 +260,33 @@ export default function Profile() {
     navigate("/login");
   };
 
+  const handleDeleteEvent = async (eventId: number) => {
+    if (!window.confirm("Ești sigur că vrei să ștergi acest eveniment? Această acțiune este ireversibilă.")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/events/${eventId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        alert("Evenimentul a fost șters.");
+        // Reîncărcăm datele pentru a actualiza lista
+        fetchUserData();
+      } else {
+        const errorText = await response.text();
+        alert(`Eroare la ștergere: ${errorText}`);
+      }
+    } catch (err) {
+      alert("Eroare de server la ștergerea evenimentului.");
+    }
+  };
+
+  const handleEditEvent = (eventId: number) => {
+    navigate(`/edit-event/${eventId}`);
+  };
+
   if (loading)
     return <div className="profile-page-container">Se încarcă...</div>;
   if (error)
@@ -478,7 +505,7 @@ export default function Profile() {
                     {organizedEvents.length > 0 ? (
                       organizedEvents.map((event) => (
                         <div key={event.id} className="placeholder-list-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <div>
+                          <div style={{ flex: 1 }}>
                             <strong>{event.title}</strong> - {new Date(event.dateTime).toLocaleString("ro-RO", { 
                               day: "2-digit", 
                               month: "long", 
@@ -486,10 +513,26 @@ export default function Profile() {
                               hour: "2-digit", 
                               minute: "2-digit" 
                             })}
+                            <div style={{ marginTop: "5px" }}>
+                              <span className={`event-status-badge ${event.status?.toLowerCase() || "active"}`}>
+                                {event.status || "Activ"}
+                              </span>
+                            </div>
                           </div>
-                          <span className={`event-status-badge ${event.status?.toLowerCase()}`}>
-                            {event.status || "Activ"}
-                          </span>
+                          <div className="event-actions">
+                            <button 
+                              className="btn-action btn-edit-event"
+                              onClick={() => handleEditEvent(event.id)}
+                            >
+                              Modifică
+                            </button>
+                            <button 
+                              className="btn-action btn-delete-event"
+                              onClick={() => handleDeleteEvent(event.id)}
+                            >
+                              Șterge
+                            </button>
+                          </div>
                         </div>
                       ))
                     ) : (
