@@ -153,6 +153,8 @@ public class EventService {
         } catch (Exception e) {
             return "Necunoscut";
         }
+    }
+
     public void deleteEvent(Long id) {
         eventRepository.deleteById(id);
     }
