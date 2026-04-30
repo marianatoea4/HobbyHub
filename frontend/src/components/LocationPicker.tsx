@@ -14,11 +14,22 @@ const customGreenIcon = L.divIcon({
 
 interface LocationPickerProps {
     onLocationSelect: (lat: number, lng: number) => void;
+    initialLat?: number;
+    initialLng?: number;
 }
 
-export default function LocationPicker({ onLocationSelect }: LocationPickerProps) {
-    // Coordonate initiale (Centrul Bucurestiului)
-    const [position, setPosition] = useState<[number, number]>([44.4323, 26.1063]);
+export default function LocationPicker({ onLocationSelect, initialLat, initialLng }: LocationPickerProps) {
+    // Coordonate initiale (Centrul Bucurestiului sau coordonatele primite)
+    const [position, setPosition] = useState<[number, number]>(
+        initialLat && initialLng ? [initialLat, initialLng] : [44.4323, 26.1063]
+    );
+
+    // Efect pentru actualizarea pozitiei daca se schimba coordonatele initiale (ex: la incarcarea datelor in EditEvent)
+    useEffect(() => {
+        if (initialLat && initialLng) {
+            setPosition([initialLat, initialLng]);
+        }
+    }, [initialLat, initialLng]);
 
     const updateLocation = (lat: number, lng: number) => {
         setPosition([lat, lng]);
@@ -31,7 +42,7 @@ export default function LocationPicker({ onLocationSelect }: LocationPickerProps
             click(e) {
                 const { lat, lng } = e.latlng;
                 setPosition([lat, lng]);
-                onLocationSelect(lat, lng); // Trimitem datele la parinte (CreateEvent)
+                onLocationSelect(lat, lng); // Trimitem datele la parinte (CreateEvent/EditEvent)
             },
         });
         return <Marker position={position} icon={customGreenIcon} />;
@@ -47,11 +58,21 @@ export default function LocationPicker({ onLocationSelect }: LocationPickerProps
             <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
-
+            
+            <MapUpdater center={position} />
             <SearchField onLocationFound={updateLocation} />
             <ClickHandler />
         </MapContainer>
     );
+}
+
+// Componenta interna pentru a forta centrarea hartii cand se schimba position
+function MapUpdater({ center }: { center: [number, number] }) {
+    const map = useMap();
+    useEffect(() => {
+        map.setView(center, map.getZoom());
+    }, [center, map]);
+    return null;
 }
 
 

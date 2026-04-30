@@ -67,4 +67,60 @@ public class EventService {
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }
+
+    public List<Event> getEventsByOrganizer(Long userId) {
+        return eventRepository.findByOrganizerId(userId);
+    }
+
+    public Optional<Event> getEventById(Long id) {
+        return eventRepository.findById(id);
+    }
+
+    public void deleteEvent(Long id) {
+        eventRepository.deleteById(id);
+    }
+
+    public Event updateEvent(Long id, Event updatedEvent, MultipartFile[] files) throws IOException {
+        return eventRepository.findById(id).map(existingEvent -> {
+            existingEvent.setTitle(updatedEvent.getTitle());
+            existingEvent.setDescription(updatedEvent.getDescription());
+            existingEvent.setCategory(updatedEvent.getCategory());
+            existingEvent.setDateTime(updatedEvent.getDateTime());
+            existingEvent.setCapacity(updatedEvent.getCapacity());
+            existingEvent.setLat(updatedEvent.getLat());
+            existingEvent.setLng(updatedEvent.getLng());
+            existingEvent.setStatus(updatedEvent.getStatus());
+
+            // Salvăm modificările de bază
+            Event savedEvent = eventRepository.save(existingEvent);
+
+            // Gestionare imagini noi dacă există
+            if (files != null && files.length > 0) {
+                try {
+                    String eventFolder = UPLOAD_DIR + savedEvent.getId() + "/";
+                    Files.createDirectories(Paths.get(eventFolder));
+
+                    for (MultipartFile file : files) {
+                        String originalName = file.getOriginalFilename();
+                        if (originalName != null) {
+                            originalName = originalName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+                        }
+                        String fileName = UUID.randomUUID().toString() + "_" + originalName;
+                        Path filePath = Paths.get(eventFolder + fileName);
+                        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                        String relativeImageUrl = "/" + UPLOAD_DIR + savedEvent.getId() + "/" + fileName;
+
+                        EventImage image = new EventImage();
+                        image.setImageUrl(relativeImageUrl);
+                        image.setEvent(savedEvent);
+                        eventImageRepository.save(image);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("Eroare la salvarea noilor imagini", e);
+                }
+            }
+            return savedEvent;
+        }).orElseThrow(() -> new RuntimeException("Evenimentul nu a fost găsit cu id: " + id));
+    }
 }
