@@ -61,8 +61,17 @@ function AvatarWithInitials({
   return <div className="profile-avatar-initials">{initials}</div>;
 }
 
+interface Event {
+  id: number;
+  title: string;
+  category: string;
+  dateTime: string;
+  status: string;
+}
+
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
+  const [organizedEvents, setOrganizedEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -105,25 +114,33 @@ export default function Profile() {
       return;
     }
     setLoading(true);
-    fetch(`http://localhost:8080/api/users/${userId}`)
-      .then((response) => {
-        if (!response.ok) throw new Error("Eroare la încărcarea profilului");
-        return response.json();
+    
+    // Preluăm datele utilizatorului și evenimentele organizate în paralel
+    Promise.all([
+      fetch(`http://localhost:8080/api/users/${userId}`).then(res => {
+        if (!res.ok) throw new Error("Eroare la încărcarea profilului");
+        return res.json();
+      }),
+      fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => {
+        if (!res.ok) throw new Error("Eroare la încărcarea evenimentelor");
+        return res.json();
       })
-      .then((data) => {
-        setUser({
-          ...data,
-          organizedEventsCount: 3,
-          joinedEventsCount: 8,
-          rating: 4.9,
-        });
-        setEditData({ firstName: data.firstName, lastName: data.lastName, bio: data.bio || "" });
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+    ])
+    .then(([userData, eventsData]) => {
+      setOrganizedEvents(eventsData);
+      setUser({
+        ...userData,
+        organizedEventsCount: eventsData.length,
+        joinedEventsCount: 8, // Încă hardcodat până facem sistemul de înscrieri
+        rating: 4.9,
       });
+      setEditData({ firstName: userData.firstName, lastName: userData.lastName, bio: userData.bio || "" });
+      setLoading(false);
+    })
+    .catch((err) => {
+      setError(err.message);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
@@ -458,9 +475,26 @@ export default function Profile() {
                 {activeTab === "organized" && (
                   <div className="tab-pane">
                     <h3>Evenimente organizate de tine</h3>
-                    <div className="placeholder-list-item">
-                      Atelier de codare - Azi 19:00
-                    </div>
+                    {organizedEvents.length > 0 ? (
+                      organizedEvents.map((event) => (
+                        <div key={event.id} className="placeholder-list-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div>
+                            <strong>{event.title}</strong> - {new Date(event.dateTime).toLocaleString("ro-RO", { 
+                              day: "2-digit", 
+                              month: "long", 
+                              year: "numeric", 
+                              hour: "2-digit", 
+                              minute: "2-digit" 
+                            })}
+                          </div>
+                          <span className={`event-status-badge ${event.status?.toLowerCase()}`}>
+                            {event.status || "Activ"}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p>Nu ai organizat niciun eveniment încă.</p>
+                    )}
                   </div>
                 )}
                 {activeTab === "joined" && (

@@ -38,4 +38,14 @@ public class EventController {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    @GetMapping("/organizer/{userId}")
+    public ResponseEntity<List<Event>> getEventsByOrganizer(@PathVariable Long userId) {
+        try {
+            List<Event> events = eventService.getEventsByOrganizer(userId);
+            return ResponseEntity.ok(events);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 }
