@@ -39,6 +39,7 @@ public class EventController {
         }
     }
 
+    // metoda pentru preluarea evenimentelor dupa ID
     @GetMapping("/organizer/{userId}")
     public ResponseEntity<List<Event>> getEventsByOrganizer(@PathVariable Long userId) {
         try {

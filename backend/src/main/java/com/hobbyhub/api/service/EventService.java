@@ -5,12 +5,25 @@ import com.hobbyhub.api.repository.EventImageRepository;
 import com.hobbyhub.api.repository.EventRepository;
 import com.hobbyhub.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.text.Normalizer;
 
 @Service
 public class EventService {
@@ -25,11 +38,26 @@ public class EventService {
 
     private final String UPLOAD_DIR = "uploads/events/";
 
+    private String removeDiacritics(String input) {
+        if (input == null) return null;
+
+        // Descompune caracterele (ex: ș devine s + virgula dedesubt)
+        String nfdNormalizedString = Normalizer.normalize(input, Normalizer.Form.NFD);
+
+        // Folosește un Regex pentru a elimina semnele diacritice (accentele)
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(nfdNormalizedString).replaceAll("");
+    }
+
+
     public Event createEvent(Event event, MultipartFile[] files) throws IOException {
         if (event.getOrganizer() != null && event.getOrganizer().getId() != null) {
             userRepository.findById(event.getOrganizer().getId())
                     .ifPresent(event::setOrganizer);
         }
+
+        String resolvedCity = fetchCityFromCoordinates(event.getLat(), event.getLng());
+        event.setCity(resolvedCity);
 
         Event savedEvent = eventRepository.save(event);
 
@@ -41,7 +69,6 @@ public class EventService {
                 //String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
                 String originalName = file.getOriginalFilename();
                 if (originalName != null) {
-                    // Înlocuiește spațiile și caracterele dubioase cu underscore "_"
                     originalName = originalName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
                 }
                 String fileName = UUID.randomUUID().toString() + "_" + originalName;
@@ -68,6 +95,7 @@ public class EventService {
         return eventRepository.findAll();
     }
 
+    // metoda pentru a prelua evenimentul dupa ID din baza de date
     public List<Event> getEventsByOrganizer(Long userId) {
         return eventRepository.findByOrganizerId(userId);
     }
@@ -76,6 +104,55 @@ public class EventService {
         return eventRepository.findById(id);
     }
 
+
+    public Event saveEvent(Event event) {
+        String resolvedCity = fetchCityFromCoordinates(event.getLat(), event.getLng());
+        event.setCity(resolvedCity);
+
+        return eventRepository.save(event);
+    }
+
+    private String fetchCityFromCoordinates(double lat, double lng) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters()
+                .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        String url = String.format(Locale.US, "https://nominatim.openstreetmap.org/reverse?format=json&lat=%f&lon=%f", lat, lng);
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", "HobbyHubApp/1.0");
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            Map<String, Object> body = response.getBody();
+
+            if (body != null && body.containsKey("address")) {
+                Map<String, String> address = (Map<String, String>) body.get("address");
+
+                String city = address.getOrDefault("city",
+                        address.getOrDefault("town",
+                                address.getOrDefault("village",
+                                        address.getOrDefault("suburb", "Altul"))));
+
+                if (address.getOrDefault("state", "").contains("București")) {
+                    city = "București";
+                }
+
+                String road = address.getOrDefault("road", "");
+
+                String result;
+                if (!road.isEmpty()) {
+                    result = city + ", " + road;
+                } else {
+                    result = city;
+                }
+
+                return removeDiacritics(result);
+            }
+            return "Altul";
+        } catch (Exception e) {
+            return "Necunoscut";
+        }
     public void deleteEvent(Long id) {
         eventRepository.deleteById(id);
     }

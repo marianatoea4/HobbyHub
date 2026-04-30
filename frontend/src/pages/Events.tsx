@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./Events.css";
+import { useNavigate } from "react-router-dom";
 
 const CustomDropdown = ({
   options,
@@ -74,6 +75,7 @@ interface EventData {
   capacity: number;
   lat: number;
   lng: number;
+  city: string;
   images: { id: number; imageUrl: string }[];
   organizer: {
     id: number;
@@ -82,6 +84,41 @@ interface EventData {
   } | null;
 }
 
+
+const EventAddress = ({ lat, lng }: { lat: number; lng: number }) => {
+  const [addressDisplay, setAddressDisplay] = useState("Se încarcă adresa...");
+
+  useEffect(() => {
+    const getShortAddress = async () => {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
+        const data = await response.json();
+        const addr = data.address;
+
+        // Extragem Orasul (poate fi city, town sau village în Nominatim)
+        const city = addr.city || addr.town || addr.village || addr.suburb || "";
+        // Extragem Strada
+        const road = addr.road || "";
+
+        if (city && road) {
+          setAddressDisplay(`${city}, ${road}`);
+        } else {
+          setAddressDisplay(city || road || "Adresă indisponibilă");
+        }
+      } catch (error) {
+        setAddressDisplay("Locație necunoscută");
+      }
+    };
+
+    getShortAddress();
+  }, [lat, lng]);
+
+  return <span>{addressDisplay}</span>;
+};
+
+
 export default function Events() {
   const navigate = useNavigate();
 
@@ -89,40 +126,64 @@ export default function Events() {
   const [events, setEvents] = useState<EventData[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
+
   // stari pentru filtre
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("");
   // !!! momentan filtrul de locatie e doar vizual, deoarece in DB avem doar coordonate GPS (lat/lng)
   const [location, setLocation] = useState("");
 
-  // functia care aduce datele din Java
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/api/events/all");
-        if (response.ok) {
-          const data = await response.json();
-          setEvents(data); // salvez datele in state
-        } else {
-          console.error("Eroare la preluarea evenimentelor");
-        }
-      } catch (error) {
-        console.error("Eroare de rețea:", error);
-      } finally {
-        setLoading(false);
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/events/all");
+      if (response.ok) {
+        const data = await response.json();
+        setEvents(data);
       }
-    };
+    } catch (error) {
+      console.error("Eroare de rețea:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchEvents();
-  }, []);
+  fetchEvents();
+}, []);
+
+  // functia care aduce datele din Java
+  // useEffect(() => {
+  //   const fetchEvents = async () => {
+  //     try {
+  //       const response = await fetch("http://localhost:8080/api/events/all");
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         setEvents(data); // salvez datele in state
+  //       } else {
+  //         console.error("Eroare la preluarea evenimentelor");
+  //       }
+  //     } catch (error) {
+  //       console.error("Eroare de rețea:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchEvents();
+  // }, []);
 
   // logica de filtrare a evenimentelor reale
   const filteredEvents = events.filter((event) => {
+    const normalizeString = (str: string) => 
+        str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
     const matchesSearch = event.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesCategory = category === "" || event.category === category;
-    return matchesSearch && matchesCategory;
+    const locationMatch = location === "" || 
+        normalizeString(event.city).includes(normalizeString(location));
+    return matchesSearch && matchesCategory && locationMatch;
   });
 
   // functie pentru a formata data din "2026-05-24T10:00:00" in "24 Mai 2026, 10:00"
@@ -265,13 +326,21 @@ export default function Events() {
                   </div>
                   <div className="event-info-row">
                     <span className="event-info-icon">📍</span>
-                    Vezi pe hartă
+                    <span>{event.city || "Locație nesetată"}</span>
                   </div>
 
                   <div className="event-footer">
                     <span className="event-spots">
                       {event.capacity} locuri libere
                     </span>
+
+                    <button 
+                      className="btn-view-event"
+                      onClick={() => navigate(`/events/${event.id}`)}
+                    >
+                      Vezi detalii
+                    </button>
+
                     <div className="event-footer-buttons">
                       {event.organizer && event.organizer.id !== getCurrentUserId() && (
                         <button
