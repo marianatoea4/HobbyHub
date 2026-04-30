@@ -11,6 +11,7 @@ interface User {
   lastName: string;
   email: string;
   bio?: string;
+  profilePicture?: string;
   organizedEventsCount?: number;
   joinedEventsCount?: number;
   rating?: number;
@@ -37,26 +38,48 @@ function StarIcon() {
 function AvatarWithInitials({
   firstName,
   lastName,
+  profilePicture,
 }: {
   firstName: string;
   lastName: string;
+  profilePicture?: string;
 }) {
   const initials = (
     (firstName?.charAt(0) || "") + (lastName?.charAt(0) || "")
   ).toUpperCase();
 
+  if (profilePicture) {
+    return (
+      <img
+        src={`http://localhost:8080${profilePicture}`}
+        alt="Profil"
+        className="profile-avatar-img"
+      />
+    );
+  }
+
   return <div className="profile-avatar-initials">{initials}</div>;
+}
+
+interface Event {
+  id: number;
+  title: string;
+  category: string;
+  dateTime: string;
+  status: string;
 }
 
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
+  const [organizedEvents, setOrganizedEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // stari pentru editare profil
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ firstName: "", lastName: "" });
+  const [editData, setEditData] = useState({ firstName: "", lastName: "", bio: "" });
+  const [selectedProfilePic, setSelectedProfilePic] = useState<File | null>(null);
 
   // stari pentru schimbare parola
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -91,26 +114,33 @@ export default function Profile() {
       return;
     }
     setLoading(true);
-    fetch(`http://localhost:8080/api/users/${userId}`)
-      .then((response) => {
-        if (!response.ok) throw new Error("Eroare la încărcarea profilului");
-        return response.json();
+    
+    // Preluăm datele utilizatorului și evenimentele organizate în paralel
+    Promise.all([
+      fetch(`http://localhost:8080/api/users/${userId}`).then(res => {
+        if (!res.ok) throw new Error("Eroare la încărcarea profilului");
+        return res.json();
+      }),
+      fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => {
+        if (!res.ok) throw new Error("Eroare la încărcarea evenimentelor");
+        return res.json();
       })
-      .then((data) => {
-        setUser({
-          ...data,
-          bio: "Pasionat de tehnologie și hobby-uri noi. Utilizator activ HobbyHub!",
-          organizedEventsCount: 3,
-          joinedEventsCount: 8,
-          rating: 4.9,
-        });
-        setEditData({ firstName: data.firstName, lastName: data.lastName });
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+    ])
+    .then(([userData, eventsData]) => {
+      setOrganizedEvents(eventsData);
+      setUser({
+        ...userData,
+        organizedEventsCount: eventsData.length,
+        joinedEventsCount: 8, // Încă hardcodat până facem sistemul de înscrieri
+        rating: 4.9,
       });
+      setEditData({ firstName: userData.firstName, lastName: userData.lastName, bio: userData.bio || "" });
+      setLoading(false);
+    })
+    .catch((err) => {
+      setError(err.message);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
@@ -120,8 +150,9 @@ export default function Profile() {
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
     setIsChangingPassword(false);
+    setSelectedProfilePic(null);
     if (user) {
-      setEditData({ firstName: user.firstName, lastName: user.lastName });
+      setEditData({ firstName: user.firstName, lastName: user.lastName, bio: user.bio || "" });
     }
   };
 
@@ -135,7 +166,9 @@ export default function Profile() {
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
@@ -147,21 +180,47 @@ export default function Profile() {
     setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    fetch(`http://localhost:8080/api/users/${userId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editData),
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Eroare la salvarea modificărilor");
-        return response.json();
-      })
-      .then(() => {
-        setIsEditing(false);
-        fetchUserData();
-      })
-      .catch((err) => alert(err.message));
+  const handleSave = async () => {
+    try {
+      // 1. Salvam datele text (nume, prenume, bio)
+      const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editData),
+      });
+      if (!response.ok) throw new Error("Eroare la salvarea modificărilor");
+
+      // 2. Daca s-a selectat o poza noua, o uploadam
+      if (selectedProfilePic) {
+        const formData = new FormData();
+        formData.append("file", selectedProfilePic);
+
+        const picResponse = await fetch(
+          `http://localhost:8080/api/users/${userId}/profile-picture`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        if (!picResponse.ok) throw new Error("Eroare la salvarea imaginii");
+      }
+
+      // Actualizam si localStorage
+      const updatedUser = await response.json();
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        parsed.firstName = updatedUser.firstName;
+        parsed.lastName = updatedUser.lastName;
+        localStorage.setItem("user", JSON.stringify(parsed));
+      }
+
+      setIsEditing(false);
+      setSelectedProfilePic(null);
+      fetchUserData();
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   const handlePasswordSave = () => {
@@ -201,6 +260,33 @@ export default function Profile() {
     navigate("/login");
   };
 
+  const handleDeleteEvent = async (eventId: number) => {
+    if (!window.confirm("Ești sigur că vrei să ștergi acest eveniment? Această acțiune este ireversibilă.")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/events/${eventId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        alert("Evenimentul a fost șters.");
+        // Reîncărcăm datele pentru a actualiza lista
+        fetchUserData();
+      } else {
+        const errorText = await response.text();
+        alert(`Eroare la ștergere: ${errorText}`);
+      }
+    } catch (err) {
+      alert("Eroare de server la ștergerea evenimentului.");
+    }
+  };
+
+  const handleEditEvent = (eventId: number) => {
+    navigate(`/edit-event/${eventId}`);
+  };
+
   if (loading)
     return <div className="profile-page-container">Se încarcă...</div>;
   if (error)
@@ -226,6 +312,7 @@ export default function Profile() {
               <AvatarWithInitials
                 firstName={user.firstName}
                 lastName={user.lastName}
+                profilePicture={user.profilePicture}
               />
             </div>
 
@@ -235,7 +322,7 @@ export default function Profile() {
                   {user.firstName} {user.lastName}
                 </h1>
                 <p className="profile-email">{user.email}</p>
-                <p className="profile-bio">{user.bio}</p>
+                <p className="profile-bio">{user.bio || "Adaugă o descriere despre tine!"}</p>
                 <div className="profile-actions">
                   <button
                     className="btn-edit-profile"
@@ -278,6 +365,31 @@ export default function Profile() {
                     value={editData.lastName}
                     onChange={handleInputChange}
                   />
+                </div>
+                <div className="input-group">
+                  <label>Despre mine</label>
+                  <textarea
+                    name="bio"
+                    value={editData.bio}
+                    onChange={handleInputChange}
+                    rows={3}
+                    placeholder="Spune-le celorlalți despre tine..."
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Poză de profil</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setSelectedProfilePic(e.target.files?.[0] || null)
+                    }
+                  />
+                  {selectedProfilePic && (
+                    <p style={{ fontSize: "0.8rem", color: "#a0c878", marginTop: "4px" }}>
+                      ✓ {selectedProfilePic.name}
+                    </p>
+                  )}
                 </div>
                 <div className="profile-actions">
                   <button
@@ -390,9 +502,42 @@ export default function Profile() {
                 {activeTab === "organized" && (
                   <div className="tab-pane">
                     <h3>Evenimente organizate de tine</h3>
-                    <div className="placeholder-list-item">
-                      Atelier de codare - Azi 19:00
-                    </div>
+                    {organizedEvents.length > 0 ? (
+                      organizedEvents.map((event) => (
+                        <div key={event.id} className="placeholder-list-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div style={{ flex: 1 }}>
+                            <strong>{event.title}</strong> - {new Date(event.dateTime).toLocaleString("ro-RO", { 
+                              day: "2-digit", 
+                              month: "long", 
+                              year: "numeric", 
+                              hour: "2-digit", 
+                              minute: "2-digit" 
+                            })}
+                            <div style={{ marginTop: "5px" }}>
+                              <span className={`event-status-badge ${event.status?.toLowerCase() || "active"}`}>
+                                {event.status || "Activ"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="event-actions">
+                            <button 
+                              className="btn-action btn-edit-event"
+                              onClick={() => handleEditEvent(event.id)}
+                            >
+                              Modifică
+                            </button>
+                            <button 
+                              className="btn-action btn-delete-event"
+                              onClick={() => handleDeleteEvent(event.id)}
+                            >
+                              Șterge
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p>Nu ai organizat niciun eveniment încă.</p>
+                    )}
                   </div>
                 )}
                 {activeTab === "joined" && (

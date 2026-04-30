@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import CreateEvent from "./pages/CreateEvent";
 import EventDetails from "./pages/EventDetails";
+import EditEvent from "./pages/EditEvent";
+import Messages from "./pages/Messages";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/create-event" element={<CreateEvent />} />
         <Route path="/events/:id" element={<EventDetails />} />
+        <Route path="/edit-event/:id" element={<EditEvent />} />
+        <Route path="/messages" element={<Messages />} />
       </Routes>
     </Router>
   );

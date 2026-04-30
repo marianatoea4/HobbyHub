@@ -40,10 +40,43 @@ public class EventController {
     }
 
     // metoda pentru preluarea evenimentelor dupa ID
+    @GetMapping("/organizer/{userId}")
+    public ResponseEntity<List<Event>> getEventsByOrganizer(@PathVariable Long userId) {
+        try {
+            List<Event> events = eventService.getEventsByOrganizer(userId);
+            return ResponseEntity.ok(events);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Event> getEventById(@PathVariable Long id) {
         return eventService.getEventById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> updateEvent(
+            @PathVariable Long id,
+            @RequestPart("event") Event event,
+            @RequestPart(value = "files", required = false) MultipartFile[] files) {
+        try {
+            Event updated = eventService.updateEvent(id, event, files);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Eroare la actualizarea evenimentului: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
+        try {
+            eventService.deleteEvent(id);
+            return ResponseEntity.ok("Eveniment șters cu succes.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Eroare la ștergerea evenimentului: " + e.getMessage());
+        }
     }
 }
