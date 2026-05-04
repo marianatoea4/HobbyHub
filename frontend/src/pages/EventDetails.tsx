@@ -24,6 +24,9 @@ export default function EventDetails() {
 
     const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
 
+    const [enrollmentStatus, setEnrollmentStatus] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     useEffect(() => {
         const fetchAddress = async () => {
             if (!event?.lat || !event?.lng) return;
@@ -47,6 +50,23 @@ export default function EventDetails() {
     }, [event]);
 
     useEffect(() => {
+        const checkEnrollmentStatus = async () => {
+            if (!loggedInUser.id || !id) return;
+            
+            try {
+                const response = await fetch(`http://localhost:8080/api/enrollments/status?userId=${loggedInUser.id}&eventId=${id}`);
+                if (response.ok) {
+                    const status = await response.text();
+                    setEnrollmentStatus(status || null);
+                }
+            } catch (error) {
+                console.error("Eroare verificare status înscriere:", error);
+            }
+        };
+        checkEnrollmentStatus();
+    }, [id, loggedInUser.id]);
+
+    useEffect(() => {
         const fetchEventDetails = async () => {
             try {
                 const response = await fetch(`http://localhost:8080/api/events/${id}`);
@@ -64,6 +84,38 @@ export default function EventDetails() {
         };
         fetchEventDetails();
     }, [id]);
+
+    const handleEnroll = async () => {
+        if (!loggedInUser.id) {
+            alert("Trebuie să fii autentificat pentru a te înscrie!");
+            navigate("/login");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const response = await fetch("http://localhost:8080/api/enrollments/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: loggedInUser.id,
+                    eventId: event.id
+                })
+            });
+
+            if (response.ok) {
+                setEnrollmentStatus("PENDING");
+                //alert("Cererea de înscriere a fost trimisă! Așteaptă confirmarea organizatorului.");
+            } else {
+                const errorMsg = await response.text();
+                alert(errorMsg);
+            }
+        } catch (error) {
+            alert("Eroare de rețea. Încearcă din nou.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const nextImage = () => {
         if (event?.images) {
@@ -157,8 +209,15 @@ export default function EventDetails() {
                             </div>
 
                             {!isOrganizer && (
-                                <button className="join-button" disabled={availableSpots <= 0}>
-                                    {availableSpots > 0 ? "Înscrie-te acum" : "Locuri epuizate"}
+                                <button 
+                                    className={`join-button ${enrollmentStatus ? 'enrolled' : ''}`} 
+                                    onClick={handleEnroll}
+                                    disabled={availableSpots <= 0 || enrollmentStatus !== null || isSubmitting}
+                                >
+                                    {isSubmitting ? "Se procesează..." : 
+                                     enrollmentStatus === "PENDING" ? "În așteptare (Cerere trimisă)" :
+                                     enrollmentStatus === "CONFIRMED" ? "Te-ai înscris deja" :
+                                     availableSpots > 0 ? "Înscrie-te acum" : "Locuri epuizate"}
                                 </button>
                             )}
                             
