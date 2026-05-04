@@ -170,7 +170,7 @@ export default function CreateEvent() {
       });
 
       if (response.ok) {
-        alert("Eveniment creat cu succes!");
+        // alert("Eveniment creat cu succes!");
         navigate("/events"); // redirectionare catre explorare
       } else {
         alert("Eroare la crearea evenimentului.");

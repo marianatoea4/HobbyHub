@@ -69,12 +69,28 @@ interface Event {
   status: string;
 }
 
+
+interface Enrollment {
+  id: number;
+  status: string;
+  event: {
+    id: number;
+    title: string;
+    dateTime: string;
+  };
+}
+
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [organizedEvents, setOrganizedEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // stari pentru evenimentele inscrise
+  const [joinedEvents, setJoinedEvents] = useState<Enrollment[]>([]);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [enrollmentToWithdraw, setEnrollmentToWithdraw] = useState<number | null>(null);
 
   // stari pentru editare profil
   const [isEditing, setIsEditing] = useState(false);
@@ -117,31 +133,27 @@ export default function Profile() {
     
     // Preluăm datele utilizatorului și evenimentele organizate în paralel
     Promise.all([
-      fetch(`http://localhost:8080/api/users/${userId}`).then(res => {
-        if (!res.ok) throw new Error("Eroare la încărcarea profilului");
-        return res.json();
-      }),
-      fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => {
-        if (!res.ok) throw new Error("Eroare la încărcarea evenimentelor");
-        return res.json();
-      })
+      fetch(`http://localhost:8080/api/users/${userId}`).then(res => res.json()),
+    fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => res.json()),
+    fetch(`http://localhost:8080/api/enrollments/user/${userId}`).then(res => res.json())
     ])
-    .then(([userData, eventsData]) => {
-      setOrganizedEvents(eventsData);
-      setUser({
-        ...userData,
-        organizedEventsCount: eventsData.length,
-        joinedEventsCount: 8, // Încă hardcodat până facem sistemul de înscrieri
-        rating: 4.9,
-      });
-      setEditData({ firstName: userData.firstName, lastName: userData.lastName, bio: userData.bio || "" });
-      setLoading(false);
-    })
-    .catch((err) => {
-      setError(err.message);
-      setLoading(false);
+    .then(([userData, organizedData, enrollmentsData]) => {
+    setOrganizedEvents(organizedData);
+    setJoinedEvents(enrollmentsData); 
+    setUser({
+      ...userData,
+      organizedEventsCount: organizedData.length,
+      joinedEventsCount: enrollmentsData.length, 
+      rating: 4.9,
     });
-  };
+    setEditData({ firstName: userData.firstName, lastName: userData.lastName, bio: userData.bio || "" });
+    setLoading(false);
+  })
+  .catch((err) => {
+    setError(err.message);
+    setLoading(false);
+  });
+};
 
   useEffect(() => {
     fetchUserData();
@@ -271,7 +283,7 @@ export default function Profile() {
       });
 
       if (response.ok) {
-        alert("Evenimentul a fost șters.");
+        //alert("Evenimentul a fost șters.");
         // Reîncărcăm datele pentru a actualiza lista
         fetchUserData();
       } else {
@@ -286,6 +298,54 @@ export default function Profile() {
   const handleEditEvent = (eventId: number) => {
     navigate(`/edit-event/${eventId}`);
   };
+
+  const openWithdrawModal = (enrollmentId: number) => {
+  setEnrollmentToWithdraw(enrollmentId);
+  setShowWithdrawModal(true);
+};
+
+// Funcția care este apelată când apeși "Da" în modal
+const confirmWithdraw = async () => {
+  if (enrollmentToWithdraw === null) return;
+
+  try {
+    const response = await fetch(`http://localhost:8080/api/enrollments/${enrollmentToWithdraw}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      fetchUserData(); // Reîmprospătăm datele
+    } else {
+      alert("Eroare la retragere.");
+    }
+  } catch (err) {
+    alert("Eroare de conexiune la server.");
+  } finally {
+    setShowWithdrawModal(false);
+    setEnrollmentToWithdraw(null);
+  }
+};
+
+//   const handleWithdraw = async (enrollmentId: number) => {
+//   if (!window.confirm("Ești sigur că vrei să te retragi de la acest eveniment?")) {
+//     return;
+//   }
+
+//   try {
+//     const response = await fetch(`http://localhost:8080/api/enrollments/${enrollmentId}`, {
+//       method: "DELETE",
+//     });
+
+//     if (response.ok) {
+//       // Reîmprospătăm datele
+//       fetchUserData();
+//     } else {
+//       alert("Eroare la retragere.");
+//     }
+//   } catch (err) {
+//     alert("Eroare de conexiune la server.");
+//   }
+// };
 
   if (loading)
     return <div className="profile-page-container">Se încarcă...</div>;
@@ -542,10 +602,42 @@ export default function Profile() {
                 )}
                 {activeTab === "joined" && (
                   <div className="tab-pane">
-                    <h3>Evenimente la care ai participat</h3>
-                    <div className="placeholder-list-item">
-                      Meetup HobbyHub - Ieri
-                    </div>
+                    <h3>Evenimente la care ești înscris</h3>
+                    {joinedEvents.length > 0 ? (
+                      joinedEvents.map((enroll) => (
+                        <div key={enroll.id} className="placeholder-list-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div style={{ flex: 1 }}>
+                            <strong>{enroll.event.title}</strong> - {new Date(enroll.event.dateTime).toLocaleString("ro-RO", { 
+                              day: "2-digit", 
+                              month: "long", 
+                              year: "numeric" 
+                            })}
+                            <div style={{ marginTop: "5px" }}>
+                              <span className={`event-status-badge ${enroll.status.toLowerCase()}`}>
+                                {enroll.status === "PENDING" ? "În așteptare" : "Confirmat"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="event-actions">
+                            <button 
+                              className="btn-action btn-view-event"
+                              onClick={() => navigate(`/events/${enroll.event.id}`)}
+                              style={{ backgroundColor: "#e3f2fd", color: "#1976d2" }}
+                            >
+                              Vezi pagina
+                            </button>
+                            <button 
+                              className="btn-action btn-delete-event"
+                              onClick={() => openWithdrawModal(enroll.id)}
+                            >
+                              Retragere
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p>Nu ești înscris la niciun eveniment.</p>
+                    )}
                   </div>
                 )}
                 {activeTab === "reports" && (
@@ -560,6 +652,22 @@ export default function Profile() {
             </section>
           </main>
         </div>
+        {showWithdrawModal && (
+          <div className="modal-overlay">
+            <div className="modal-card">
+              <h2>Confirmare Retragere</h2>
+              <p>Ești sigur că vrei să te retragi de la acest eveniment? Această acțiune nu poate fi anulată.</p>
+              <div className="modal-buttons">
+                <button className="btn-modal-confirm" onClick={confirmWithdraw}>
+                  Da, retrage-mă
+                </button>
+                <button className="btn-modal-cancel" onClick={() => setShowWithdrawModal(false)}>
+                  Nu, rămân
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <Footer />
     </div>
