@@ -352,7 +352,7 @@ export default function Events() {
                           ✉ Contactează
                         </button>
                       )}
-                      <button className="btn-view-event">Vezi detalii</button>
+                      
                     </div>
                   </div>
                 </div>
