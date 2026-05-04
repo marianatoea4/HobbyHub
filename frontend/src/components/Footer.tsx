@@ -43,16 +43,16 @@ export default function Footer() {
           <h4>Comunitate</h4>
           <ul>
             <li>
-              <a href="#">Despre noi</a>
+              <Link to="/despre-noi">Despre noi</Link>
             </li>
             <li>
-              <a href="#">Termeni și Condiții</a>
+              <Link to="/termeni">Termeni și condiții</Link>
             </li>
             <li>
-              <a href="#">Politica de confidențialitate</a>
+              <Link to="/confidentialitate">Politica de confidențialitate</Link>
             </li>
             <li>
-              <a href="#">Ajutor / FAQ</a>
+              <Link to="/faq">FAQ</Link>
             </li>
           </ul>
         </div>

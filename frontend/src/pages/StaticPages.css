@@ -1,0 +1,78 @@
+.static-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #faf6e9;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding-top: 80px;
+}
+
+.static-page-container {
+  flex: 1;
+  max-width: 800px;
+  width: 90%;
+  margin: 40px auto;
+  padding: 50px;
+  background-color: #fffdf6;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+.static-page-title {
+  color: #a0c878;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 40px;
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+.static-page-content h3 {
+  color: #333333;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  border-bottom: 2px solid #ddeb9d;
+  padding-bottom: 5px;
+  display: inline-block;
+}
+
+.static-page-content p {
+  line-height: 1.7;
+  color: #555555;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+.static-page-content ul {
+  color: #555555;
+  line-height: 1.7;
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+
+.static-page-content li {
+  margin-bottom: 8px;
+}
+
+.faq-item {
+  margin-bottom: 25px;
+  background-color: #faf6e9;
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid #a0c878;
+}
+
+.faq-question {
+  font-weight: 700;
+  color: #333333;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.faq-answer {
+  color: #555555;
+  margin: 0;
+  line-height: 1.6;
+}
