@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import ReportModal from "../components/ReportModal";
 import "./Messages.css";
 
 interface ConversationPartner {
@@ -39,6 +40,11 @@ export default function Messages() {
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // State pentru raportare mesaj
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportTargetId, setReportTargetId] = useState(0);
+  const [reportTargetLabel, setReportTargetLabel] = useState("");
 
   // Preluam ID-ul utilizatorului curent din localStorage
   const getCurrentUserId = (): number | null => {
@@ -356,6 +362,23 @@ export default function Messages() {
                       {msg.content}
                       <div className="message-time">
                         {formatTime(msg.sentAt)}
+                        {msg.senderId !== currentUserId && (
+                          <button
+                            className="msg-report-btn"
+                            title="Raportează mesajul"
+                            onClick={() => {
+                              setReportTargetId(msg.id);
+                              setReportTargetLabel(
+                                msg.content.length > 50
+                                  ? msg.content.substring(0, 50) + "..."
+                                  : msg.content
+                              );
+                              setReportModalOpen(true);
+                            }}
+                          >
+                            ⚠
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))
@@ -384,6 +407,16 @@ export default function Messages() {
           )}
         </div>
       </div>
+
+      {/* Modal raportare mesaj */}
+      <ReportModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        reportType="MESSAGE"
+        targetId={reportTargetId}
+        targetLabel={reportTargetLabel}
+        reporterId={currentUserId || 0}
+      />
     </div>
   );
 }

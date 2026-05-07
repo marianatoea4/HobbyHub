@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import ReportModal from '../components/ReportModal';
 import './EventDetails.css';
 
 // Pin-ul personalizat (refolosit de la LocationPicker)
@@ -26,6 +27,12 @@ export default function EventDetails() {
 
     const [enrollmentStatus, setEnrollmentStatus] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // State pentru raportare
+    const [reportModalOpen, setReportModalOpen] = useState(false);
+    const [reportType, setReportType] = useState<"USER" | "EVENT">("EVENT");
+    const [reportTargetId, setReportTargetId] = useState(0);
+    const [reportTargetLabel, setReportTargetLabel] = useState("");
 
     useEffect(() => {
         const fetchAddress = async () => {
@@ -224,6 +231,36 @@ export default function EventDetails() {
                             {isOrganizer && (
                                 <div className="organizer-badge">Ești organizatorul acestui eveniment</div>
                             )}
+
+                            {/* Butoane de raportare */}
+                            {!isOrganizer && loggedInUser.id && (
+                                <div className="report-buttons-section">
+                                    <button
+                                        className="btn-report btn-report-event"
+                                        onClick={() => {
+                                            setReportType("EVENT");
+                                            setReportTargetId(event.id);
+                                            setReportTargetLabel(event.title);
+                                            setReportModalOpen(true);
+                                        }}
+                                    >
+                                        🚩 Raportează evenimentul
+                                    </button>
+                                    {event.organizer && (
+                                        <button
+                                            className="btn-report btn-report-user"
+                                            onClick={() => {
+                                                setReportType("USER");
+                                                setReportTargetId(event.organizer.id);
+                                                setReportTargetLabel(`${event.organizer.firstName} ${event.organizer.lastName}`);
+                                                setReportModalOpen(true);
+                                            }}
+                                        >
+                                            🚩 Raportează organizatorul
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="map-card">
@@ -240,6 +277,16 @@ export default function EventDetails() {
                 </div>
             </main>
             <Footer />
+
+            {/* Modal raportare */}
+            <ReportModal
+                isOpen={reportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+                reportType={reportType}
+                targetId={reportTargetId}
+                targetLabel={reportTargetLabel}
+                reporterId={loggedInUser.id}
+            />
         </div>
     );
 }

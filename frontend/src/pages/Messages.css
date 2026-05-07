@@ -354,3 +354,26 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ===== Report button on messages ===== */
+.msg-report-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.7rem;
+  margin-left: 6px;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+  color: #bbb;
+  padding: 0 2px;
+  vertical-align: middle;
+}
+
+.message-bubble.received:hover .msg-report-btn {
+  opacity: 1;
+}
+
+.msg-report-btn:hover {
+  color: #e74c3c;
+  opacity: 1 !important;
+}
