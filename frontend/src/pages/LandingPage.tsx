@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import "./LandingPage.css";
 import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
 
 function PaletteIcon() {
   return (
@@ -69,19 +70,7 @@ export default function LandingPage() {
   return (
     <div className="landing-container">
       {/* bara de navigare */}
-      <nav className="landing-navbar">
-        <Link to="/" className="logo">
-          HobbyHub
-        </Link>
-        <div className="nav-links">
-          <Link to="/login" className="nav-link-login">
-            Intră în cont
-          </Link>
-          <Link to="/signup" className="nav-btn-signup">
-            Înregistrare
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* sectiunea principala */}
       <header className="hero-section">

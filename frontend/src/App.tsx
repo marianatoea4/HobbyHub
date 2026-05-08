@@ -9,6 +9,10 @@ import CreateEvent from "./pages/CreateEvent";
 import EventDetails from "./pages/EventDetails";
 import EditEvent from "./pages/EditEvent";
 import Messages from "./pages/Messages";
+import AboutUs from "./pages/AboutUs";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import FAQ from "./pages/FAQ";
 
 function App() {
   return (
@@ -26,6 +30,10 @@ function App() {
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path="/edit-event/:id" element={<EditEvent />} />
         <Route path="/messages" element={<Messages />} />
+        <Route path="/despre-noi" element={<AboutUs />} />
+        <Route path="/termeni" element={<Terms />} />
+        <Route path="/confidentialitate" element={<Privacy />} />
+        <Route path="/faq" element={<FAQ />} />
       </Routes>
     </Router>
   );

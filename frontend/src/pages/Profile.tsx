@@ -94,6 +94,18 @@ interface Enrollment {
   };
 }
 
+interface ReportItem {
+  id: number;
+  reportType: string;
+  reason: string;
+  description: string | null;
+  status: string;
+  createdAt: string;
+  reportedUserName: string | null;
+  reportedEventTitle: string | null;
+  reportedMessageContent: string | null;
+}
+
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [organizedEvents, setOrganizedEvents] = useState<Event[]>([]);
@@ -105,6 +117,9 @@ export default function Profile() {
   const [joinedEvents, setJoinedEvents] = useState<Enrollment[]>([]);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [enrollmentToWithdraw, setEnrollmentToWithdraw] = useState<number | null>(null);
+
+  // stari pentru raportari
+  const [reports, setReports] = useState<ReportItem[]>([]);
 
   // stari pentru editare profil
   const [isEditing, setIsEditing] = useState(false);
@@ -201,6 +216,13 @@ const fetchUserData = () => {
       }
     }
 
+    fetch(`http://localhost:8080/api/enrollments/user/${userId}`).then(res => res.json()),
+    fetch(`http://localhost:8080/api/reports/user/${userId}`).then(res => res.json())
+    ])
+    .then(([userData, organizedData, enrollmentsData, reportsData]) => {
+    setOrganizedEvents(organizedData);
+    setJoinedEvents(enrollmentsData);
+    setReports(reportsData);
     setUser({
       ...userData,
       organizedEventsCount: organizedData.length,
@@ -788,9 +810,48 @@ const handleReject = async (enrollmentId: number) => {
                 {activeTab === "reports" && (
                   <div className="tab-pane">
                     <h3>Istoricul raportărilor tale</h3>
-                    <div className="placeholder-list-item">
-                      Nu există raportări active.
-                    </div>
+                    {reports.length > 0 ? (
+                      reports.map((report) => (
+                        <div key={report.id} className="placeholder-list-item report-item">
+                          <div className="report-item-header">
+                            <span className={`report-type-badge ${report.reportType.toLowerCase()}`}>
+                              {report.reportType === "USER" ? "Utilizator" : report.reportType === "MESSAGE" ? "Mesaj" : "Eveniment"}
+                            </span>
+                            <span className={`report-status-badge ${report.status.toLowerCase()}`}>
+                              {report.status === "PENDING" ? "În așteptare" : report.status === "REVIEWED" ? "Analizat" : "Respins"}
+                            </span>
+                          </div>
+                          <div className="report-item-body">
+                            <p className="report-reason"><strong>Motiv:</strong> {report.reason}</p>
+                            {report.reportedUserName && (
+                              <p className="report-target">Utilizator raportat: <strong>{report.reportedUserName}</strong></p>
+                            )}
+                            {report.reportedEventTitle && (
+                              <p className="report-target">Eveniment raportat: <strong>{report.reportedEventTitle}</strong></p>
+                            )}
+                            {report.reportedMessageContent && (
+                              <p className="report-target">Mesaj: <em>"{report.reportedMessageContent}"</em></p>
+                            )}
+                            {report.description && (
+                              <p className="report-description">{report.description}</p>
+                            )}
+                          </div>
+                          <div className="report-item-footer">
+                            {new Date(report.createdAt).toLocaleString("ro-RO", {
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="placeholder-list-item">
+                        Nu ai trimis nicio raportare.
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

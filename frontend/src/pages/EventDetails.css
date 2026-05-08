@@ -350,3 +350,31 @@
     min-width: 200px;
     text-align: left;
 }
+
+/* ===== Report Buttons ===== */
+.report-buttons-section {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-report {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    background: #fafafa;
+    color: #888;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+}
+
+.btn-report:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+    background: #fef2f2;
+}
