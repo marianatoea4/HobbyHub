@@ -192,51 +192,42 @@ export default function Profile() {
 
 
 const fetchUserData = () => {
-  if (!userId) {
-    navigate("/login");
-    return;
-  }
-  setLoading(true);
-  
-  Promise.all([
-    fetch(`http://localhost:8080/api/users/${userId}`).then(res => res.json()),
-    fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => res.json()),
-    fetch(`http://localhost:8080/api/enrollments/user/${userId}`).then(res => res.json())
-  ])
-  .then(([userData, organizedData, enrollmentsData]) => {
-    setOrganizedEvents(organizedData);
-    setJoinedEvents(enrollmentsData); 
-    
-    // --- SINCRONIZARE MODAL ---
-    // Dacă modalul este deschis, actualizăm selectedEvent cu noile date (ex: capacitatea nouă)
-    if (showParticipantsModal && selectedEvent) {
-      const updatedEvent = organizedData.find((e: Event) => e.id === selectedEvent.id);
-      if (updatedEvent) {
-        setSelectedEvent(updatedEvent);
-      }
+    if (!userId) {
+      navigate("/login");
+      return;
     }
+    setLoading(true);
 
-    fetch(`http://localhost:8080/api/enrollments/user/${userId}`).then(res => res.json()),
-    fetch(`http://localhost:8080/api/reports/user/${userId}`).then(res => res.json())
+    // Un singur Promise.all curat pentru toate datele
+    Promise.all([
+      fetch(`http://localhost:8080/api/users/${userId}`).then(res => res.json()),
+      fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => res.json()),
+      fetch(`http://localhost:8080/api/enrollments/user/${userId}`).then(res => res.json()),
     ])
-    .then(([userData, organizedData, enrollmentsData, reportsData]) => {
-    setOrganizedEvents(organizedData);
-    setJoinedEvents(enrollmentsData);
-    setReports(reportsData);
-    setUser({
-      ...userData,
-      organizedEventsCount: organizedData.length,
-      joinedEventsCount: enrollmentsData.length, 
-      rating: 4.9,
-    });
-    setEditData({ firstName: userData.firstName, lastName: userData.lastName, bio: userData.bio || "" });
-    setLoading(false);
-  })
-  .catch((err) => {
-    setError(err.message);
-    setLoading(false);
-  });
-};
+      .then(([userData, organizedData, enrollmentsData]) => {
+        setUser({
+          ...userData,
+          organizedEventsCount: organizedData.length,
+          joinedEventsCount: enrollmentsData.length
+        });
+        setOrganizedEvents(organizedData);
+        setJoinedEvents(enrollmentsData);
+        // setReports(reportsData);
+
+        // Sincronizare modal dacă e deschis
+        if (showParticipantsModal && selectedEvent) {
+          const updated = organizedData.find((e: Event) => e.id === selectedEvent.id);
+          if (updated) setSelectedEvent(updated);
+        }
+
+        setEditData({ firstName: userData.firstName, lastName: userData.lastName, bio: userData.bio || "" });
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("Eroare la încărcarea datelor.");
+        setLoading(false);
+      });
+  };
 
 
 const refreshParticipantsList = async (eventId: number) => {
