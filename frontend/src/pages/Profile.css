@@ -489,3 +489,180 @@
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+
+
+
+
+
+.participants-modal {
+  max-width: 650px !important; 
+  width: 95%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding: 35px !important; /* Spandare consistentă */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ddeb9d; /* Verdele deschis din tab-uri */
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #333;
+}
+
+/* Badge-ul pentru locuri libere */
+.spots-left-badge {
+  background-color: #faf6e9;
+  color: #a0c878;
+  border: 2px solid #a0c878;
+  padding: 6px 15px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+/* Lista de participanți */
+.participants-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 25px;
+  padding-right: 10px; /* Spațiu pentru scrollbar */
+}
+
+/* Stil personalizat pentru scrollbar */
+.participants-list::-webkit-scrollbar {
+  width: 6px;
+}
+.participants-list::-webkit-scrollbar-thumb {
+  background: #ddeb9d;
+  border-radius: 10px;
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 12px;
+  background-color: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 15px;
+  transition: all 0.2s ease;
+}
+
+.participant-item:hover {
+  border-color: #ddeb9d;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.participant-info strong {
+  font-size: 1.05rem;
+  color: #333;
+}
+
+/* Status-uri în interiorul listei */
+.status-small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-small.pending { color: #ef6c00; }
+.status-small.confirmed { color: #a0c878; }
+.status-small.rejected { color: #ff4d4d; }
+
+.participant-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Butonul de "Vezi profil" ca link text */
+.btn-text {
+  background: none;
+  border: none;
+  color: #666;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.btn-text:hover {
+  color: #a0c878;
+}
+
+/* Butoanele de Accept/Resping */
+.btn-approve {
+  background-color: #ddeb9d;
+  color: 2e7d32;
+  border: none;
+  width: 40px;
+  height: 34px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.btn-approve:hover:not(:disabled) {
+  background-color: #8eb36a;
+  color: white;
+  transform: scale(1.05);
+}
+
+.btn-reject {
+  background-color: #ffebee;
+  color: #ff4d4d;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-reject:hover {
+  background-color: #d32f2f;
+  color: white;
+  transform: scale(1.05);
+}
+
+.btn-approve:disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
+.no-data {
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+}
+
+
+.event-status-badge.rejected {
+  background-color: #ffebee;
+  color: #ff4d4d;
+}

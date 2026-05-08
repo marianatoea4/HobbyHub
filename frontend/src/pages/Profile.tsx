@@ -67,6 +67,20 @@ interface Event {
   category: string;
   dateTime: string;
   status: string;
+  capacity: number;
+}
+
+
+// pentru afisarea listei de participanti
+interface ParticipantEnrollment {
+  id: number;
+  status: string;
+  user: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+  };
 }
 
 
@@ -97,6 +111,12 @@ export default function Profile() {
   const [editData, setEditData] = useState({ firstName: "", lastName: "", bio: "" });
   const [selectedProfilePic, setSelectedProfilePic] = useState<File | null>(null);
 
+  // stari pentru accepatare/ respingerea participantilor 
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [participants, setParticipants] = useState<ParticipantEnrollment[]>([]);
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
+
   // stari pentru schimbare parola
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -124,22 +144,63 @@ export default function Profile() {
 
   const userId = getLoggedInUserId();
 
-  const fetchUserData = () => {
-    if (!userId) {
-      navigate("/login");
-      return;
-    }
-    setLoading(true);
+//   const fetchUserData = () => {
+//     if (!userId) {
+//       navigate("/login");
+//       return;
+//     }
+//     setLoading(true);
     
-    // Preluăm datele utilizatorului și evenimentele organizate în paralel
-    Promise.all([
-      fetch(`http://localhost:8080/api/users/${userId}`).then(res => res.json()),
+//     // Preluăm datele utilizatorului și evenimentele organizate în paralel
+//     Promise.all([
+//       fetch(`http://localhost:8080/api/users/${userId}`).then(res => res.json()),
+//       fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => res.json()),
+//       fetch(`http://localhost:8080/api/enrollments/user/${userId}`).then(res => res.json())
+//     ])
+//     .then(([userData, organizedData, enrollmentsData]) => {
+//     setOrganizedEvents(organizedData);
+//     setJoinedEvents(enrollmentsData); 
+//     setUser({
+//       ...userData,
+//       organizedEventsCount: organizedData.length,
+//       joinedEventsCount: enrollmentsData.length, 
+//       rating: 4.9,
+//     });
+//     setEditData({ firstName: userData.firstName, lastName: userData.lastName, bio: userData.bio || "" });
+//     setLoading(false);
+//   })
+//   .catch((err) => {
+//     setError(err.message);
+//     setLoading(false);
+//   });
+// };
+
+
+const fetchUserData = () => {
+  if (!userId) {
+    navigate("/login");
+    return;
+  }
+  setLoading(true);
+  
+  Promise.all([
+    fetch(`http://localhost:8080/api/users/${userId}`).then(res => res.json()),
     fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => res.json()),
     fetch(`http://localhost:8080/api/enrollments/user/${userId}`).then(res => res.json())
-    ])
-    .then(([userData, organizedData, enrollmentsData]) => {
+  ])
+  .then(([userData, organizedData, enrollmentsData]) => {
     setOrganizedEvents(organizedData);
     setJoinedEvents(enrollmentsData); 
+    
+    // --- SINCRONIZARE MODAL ---
+    // Dacă modalul este deschis, actualizăm selectedEvent cu noile date (ex: capacitatea nouă)
+    if (showParticipantsModal && selectedEvent) {
+      const updatedEvent = organizedData.find((e: Event) => e.id === selectedEvent.id);
+      if (updatedEvent) {
+        setSelectedEvent(updatedEvent);
+      }
+    }
+
     setUser({
       ...userData,
       organizedEventsCount: organizedData.length,
@@ -153,6 +214,19 @@ export default function Profile() {
     setError(err.message);
     setLoading(false);
   });
+};
+
+
+const refreshParticipantsList = async (eventId: number) => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/enrollments/event/${eventId}`);
+    if (response.ok) {
+      const data = await response.json();
+      setParticipants(data);
+    }
+  } catch (error) {
+    console.error("Eroare la refresh participanți:", error);
+  }
 };
 
   useEffect(() => {
@@ -326,26 +400,85 @@ const confirmWithdraw = async () => {
   }
 };
 
-//   const handleWithdraw = async (enrollmentId: number) => {
-//   if (!window.confirm("Ești sigur că vrei să te retragi de la acest eveniment?")) {
-//     return;
-//   }
+// Deschide modalul si incarca participantii
+const openParticipantsModal = async (event: Event) => {
+  setSelectedEvent(event);
+  setShowParticipantsModal(true);
+  setLoadingParticipants(true);
+  try {
+    const response = await fetch(`http://localhost:8080/api/enrollments/event/${event.id}`);
+    if (response.ok) {
+      const data = await response.json();
+      setParticipants(data);
+    }
+  } catch (error) {
+    console.error("Eroare la încărcarea participanților:", error);
+  } finally {
+    setLoadingParticipants(false);
+  }
+};
 
+// Accepta participant
+// const handleApprove = async (enrollmentId: number) => {
 //   try {
-//     const response = await fetch(`http://localhost:8080/api/enrollments/${enrollmentId}`, {
-//       method: "DELETE",
+//     const response = await fetch(`http://localhost:8080/api/enrollments/${enrollmentId}/approve`, {
+//       method: "PUT",
 //     });
-
 //     if (response.ok) {
-//       // Reîmprospătăm datele
-//       fetchUserData();
-//     } else {
-//       alert("Eroare la retragere.");
+//       // Reîncărcăm lista de participanți și datele userului (pentru a actualiza capacitatea în UI)
+//       if (selectedEvent) openParticipantsModal(selectedEvent);
+//       fetchUserData(); 
 //     }
-//   } catch (err) {
-//     alert("Eroare de conexiune la server.");
+//   } catch (error) {
+//     alert("Eroare la aprobare.");
 //   }
 // };
+
+// // Respinge participant
+// const handleReject = async (enrollmentId: number) => {
+//   try {
+//     const response = await fetch(`http://localhost:8080/api/enrollments/${enrollmentId}/reject`, {
+//       method: "PUT",
+//     });
+//     if (response.ok) {
+//       if (selectedEvent) openParticipantsModal(selectedEvent);
+//       fetchUserData();
+//     }
+//   } catch (error) {
+//     alert("Eroare la respingere.");
+//   }
+// };
+
+
+const handleApprove = async (enrollmentId: number) => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/enrollments/${enrollmentId}/approve`, {
+      method: "PUT",
+    });
+    if (response.ok) {
+      // 1. Reîmprospătăm imediat lista de participanți din modal
+      if (selectedEvent) await refreshParticipantsList(selectedEvent.id);
+      // 2. Reîmprospătăm datele generale (asta va actualiza și selectedEvent datorită logicii de la pasul 1)
+      fetchUserData(); 
+    }
+  } catch (error) {
+    alert("Eroare la aprobare.");
+  }
+};
+
+const handleReject = async (enrollmentId: number) => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/enrollments/${enrollmentId}/reject`, {
+      method: "PUT",
+    });
+    if (response.ok) {
+      if (selectedEvent) await refreshParticipantsList(selectedEvent.id);
+      fetchUserData();
+    }
+  } catch (error) {
+    alert("Eroare la respingere.");
+  }
+};
 
   if (loading)
     return <div className="profile-page-container">Se încarcă...</div>;
@@ -581,6 +714,13 @@ const confirmWithdraw = async () => {
                           </div>
                           <div className="event-actions">
                             <button 
+                              className="btn-action btn-view-participants"
+                              onClick={() => openParticipantsModal(event)}
+                              style={{ backgroundColor: "#a0c878", color: "white" }}
+                            >
+                              Participanți
+                            </button>
+                            <button 
                               className="btn-action btn-edit-event"
                               onClick={() => handleEditEvent(event.id)}
                             >
@@ -614,7 +754,9 @@ const confirmWithdraw = async () => {
                             })}
                             <div style={{ marginTop: "5px" }}>
                               <span className={`event-status-badge ${enroll.status.toLowerCase()}`}>
-                                {enroll.status === "PENDING" ? "În așteptare" : "Confirmat"}
+                                {enroll.status === "PENDING" && "În așteptare"}
+                                {enroll.status === "CONFIRMED" && "Confirmat"}
+                                {enroll.status === "REJECTED" && "Respins"}
                               </span>
                             </div>
                           </div>
@@ -626,12 +768,15 @@ const confirmWithdraw = async () => {
                             >
                               Vezi pagina
                             </button>
-                            <button 
-                              className="btn-action btn-delete-event"
-                              onClick={() => openWithdrawModal(enroll.id)}
-                            >
-                              Retragere
-                            </button>
+                            {/* Permitem retragerea doar daca nu a fost deja respins*/}
+                            {enroll.status !== "REJECTED" && (
+                              <button 
+                                className="btn-action btn-delete-event"
+                                onClick={() => openWithdrawModal(enroll.id)}
+                              >
+                                Retragere
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))
@@ -668,6 +813,65 @@ const confirmWithdraw = async () => {
             </div>
           </div>
         )}
+
+        {showParticipantsModal && selectedEvent && (
+        <div className="modal-overlay">
+          <div className="modal-card participants-modal">
+            <div className="modal-header">
+              <h2>{selectedEvent.title}</h2>
+              <span className="spots-left-badge">{selectedEvent.capacity} locuri libere</span>
+            </div>
+            
+            <div className="participants-list">
+              {loadingParticipants ? (
+                <p>Se încarcă...</p>
+              ) : participants.length > 0 ? (
+                participants.map((enroll) => (
+                  <div key={enroll.id} className="participant-item">
+                    <div className="participant-info">
+                      <span>{enroll.user.firstName} {enroll.user.lastName}</span>
+                      <span className={`status-small ${enroll.status.toLowerCase()}`}>
+                        ({enroll.status === 'PENDING' ? 'În așteptare' : enroll.status})
+                      </span>
+                    </div>
+                    <div className="participant-actions">
+                      <button 
+                        className="btn-text" 
+                        onClick={() => navigate(`/profile/${enroll.user.id}`)}
+                      >
+                        Vezi profil
+                      </button>
+                      
+                      {enroll.status === "PENDING" && (
+                        <>
+                          <button 
+                            className="btn-approve" 
+                            onClick={() => handleApprove(enroll.id)}
+                            disabled={selectedEvent.capacity <= 0}
+                          >
+                            ✓
+                          </button>
+                          <button className="btn-reject" onClick={() => handleReject(enroll.id)}>✕</button>
+                        </>
+                      )}
+
+                      {enroll.status === "CONFIRMED" && (
+                        <button className="btn-reject" onClick={() => handleReject(enroll.id)}>Anulează</button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="no-data">Nicio înscriere momentan.</p>
+              )}
+            </div>
+
+            <button className="btn-modal-cancel" onClick={() => setShowParticipantsModal(false)}>
+              Închide
+            </button>
+          </div>
+        </div>
+      )}
       </div>
       <Footer />
     </div>
