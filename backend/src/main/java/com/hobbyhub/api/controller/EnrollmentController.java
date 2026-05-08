@@ -66,4 +66,23 @@ public class EnrollmentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
+    // Endpoint pentru a vedea cine s-a inscris la un eveniment
+    @GetMapping("/event/{eventId}")
+    public ResponseEntity<List<Enrollment>> getEnrollmentsByEvent(@PathVariable Long eventId) {
+        List<Enrollment> enrollments = enrollmentService.getEnrollmentsByEvent(eventId);
+        return ResponseEntity.ok(enrollments);
+    }
+
+    // Endpoint pentru a respinge un participant
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<?> reject(@PathVariable Long id) {
+        try {
+            Enrollment rejected = enrollmentService.rejectEnrollment(id);
+            return ResponseEntity.ok(rejected);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

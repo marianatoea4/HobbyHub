@@ -87,4 +87,26 @@ public class EnrollmentService {
 
         enrollmentRepository.deleteById(id);
     }
+
+
+    public List<Enrollment> getEnrollmentsByEvent(Long eventId) {
+        return enrollmentRepository.findByEventId(eventId);
+    }
+
+
+    @Transactional
+    public Enrollment rejectEnrollment(Long enrollmentId) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new RuntimeException("Înscrierea nu există."));
+
+        // Dacă fusese confirmat anterior și acum îl respingem, dăm locul înapoi
+        if ("CONFIRMED".equals(enrollment.getStatus())) {
+            Event event = enrollment.getEvent();
+            event.setCapacity(event.getCapacity() + 1);
+            eventRepository.save(event);
+        }
+
+        enrollment.setStatus("REJECTED");
+        return enrollmentRepository.save(enrollment);
+    }
 }
