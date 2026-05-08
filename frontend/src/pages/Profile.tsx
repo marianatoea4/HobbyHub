@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./Profile.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -132,6 +132,12 @@ export default function Profile() {
   const [participants, setParticipants] = useState<ParticipantEnrollment[]>([]);
   const [loadingParticipants, setLoadingParticipants] = useState(false);
 
+  // stari penrtu verificarea profilului
+  const { id: urlId } = useParams();
+  const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isOwnProfile = !urlId || Number(urlId) === loggedInUser.id;
+  const targetUserId = isOwnProfile ? loggedInUser.id : Number(urlId);
+
   // stari pentru schimbare parola
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -192,7 +198,7 @@ export default function Profile() {
 
 
 const fetchUserData = () => {
-    if (!userId) {
+    if (!targetUserId) {
       navigate("/login");
       return;
     }
@@ -200,9 +206,9 @@ const fetchUserData = () => {
 
     // Un singur Promise.all curat pentru toate datele
     Promise.all([
-      fetch(`http://localhost:8080/api/users/${userId}`).then(res => res.json()),
-      fetch(`http://localhost:8080/api/events/organizer/${userId}`).then(res => res.json()),
-      fetch(`http://localhost:8080/api/enrollments/user/${userId}`).then(res => res.json()),
+      fetch(`http://localhost:8080/api/users/${targetUserId}`).then(res => res.json()),
+      fetch(`http://localhost:8080/api/events/organizer/${targetUserId}`).then(res => res.json()),
+      fetch(`http://localhost:8080/api/enrollments/user/${targetUserId}`).then(res => res.json()),
     ])
       .then(([userData, organizedData, enrollmentsData]) => {
         setUser({
@@ -242,9 +248,20 @@ const refreshParticipantsList = async (eventId: number) => {
   }
 };
 
+  // useEffect(() => {
+  //   fetchUserData();
+  // }, [userId]);
   useEffect(() => {
+    setShowParticipantsModal(false);
+    setShowWithdrawModal(false);
+    setSelectedEvent(null);
+    setParticipants([]);
+    
     fetchUserData();
-  }, [userId]);
+    
+    // Resetam tab-ul la "organized" pentru noul profil vizualizat
+    setActiveTab("organized");
+}, [urlId]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -529,27 +546,30 @@ const handleReject = async (enrollmentId: number) => {
                 </h1>
                 <p className="profile-email">{user.email}</p>
                 <p className="profile-bio">{user.bio || "Adaugă o descriere despre tine!"}</p>
-                <div className="profile-actions">
-                  <button
-                    className="btn-edit-profile"
-                    onClick={handleEditToggle}
-                  >
-                    Editează profilul
-                  </button>
-                  <button
-                    className="btn-change-password"
-                    onClick={handleChangePasswordToggle}
-                  >
-                    Schimbă parola
-                  </button>
-                  <button
-                    className="btn-logout"
-                    onClick={handleLogout}
-                    style={{ marginTop: "10px", backgroundColor: "#ff4d4d" }}
-                  >
-                    Deconectare
-                  </button>
-                </div>
+
+                {isOwnProfile && (
+                  <div className="profile-actions">
+                    <button
+                      className="btn-edit-profile"
+                      onClick={handleEditToggle}
+                    >
+                      Editează profilul
+                    </button>
+                    <button
+                      className="btn-change-password"
+                      onClick={handleChangePasswordToggle}
+                    >
+                      Schimbă parola
+                    </button>
+                    <button
+                      className="btn-logout"
+                      onClick={handleLogout}
+                      style={{ marginTop: "10px", backgroundColor: "#ff4d4d" }}
+                    >
+                      Deconectare
+                    </button>
+                  </div>
+                )}
               </>
             ) : isEditing ? (
               <div className="edit-form">
@@ -684,24 +704,17 @@ const handleReject = async (enrollmentId: number) => {
             {/* sectiunea de activitate cu tab-uri */}
             <section className="profile-activity-card profile-card">
               <div className="profile-tabs-header">
-                <button
-                  className={`tab-button ${activeTab === "organized" ? "active" : ""}`}
-                  onClick={() => setActiveTab("organized")}
-                >
-                  Evenimentele mele
+                <button className={`tab-button ${activeTab === "organized" ? "active" : ""}`} onClick={() => setActiveTab("organized")}>
+                  {isOwnProfile ? "Evenimentele mele" : "Creat de el"}
                 </button>
-                <button
-                  className={`tab-button ${activeTab === "joined" ? "active" : ""}`}
-                  onClick={() => setActiveTab("joined")}
-                >
-                  Istoric înscrieri
+                <button className={`tab-button ${activeTab === "joined" ? "active" : ""}`} onClick={() => setActiveTab("joined")}>
+                  {isOwnProfile ? "Istoric înscrieri" : "Înscris la"}
                 </button>
-                <button
-                  className={`tab-button ${activeTab === "reports" ? "active" : ""}`}
-                  onClick={() => setActiveTab("reports")}
-                >
-                  Raportări
-                </button>
+                {isOwnProfile && (
+                  <button className={`tab-button ${activeTab === "reports" ? "active" : ""}`} onClick={() => setActiveTab("reports")}>
+                    Raportări
+                  </button>
+                )}
               </div>
 
               <div className="profile-tabs-content">
@@ -726,25 +739,18 @@ const handleReject = async (enrollmentId: number) => {
                             </div>
                           </div>
                           <div className="event-actions">
-                            <button 
-                              className="btn-action btn-view-participants"
-                              onClick={() => openParticipantsModal(event)}
-                              style={{ backgroundColor: "#a0c878", color: "white" }}
-                            >
-                              Participanți
+                            {isOwnProfile ? (
+                            <>
+                              <button className="btn-action" onClick={() => openParticipantsModal(event)} style={{backgroundColor:"#a0c878", color:"white"}}>Participanți</button>
+                              <button className="btn-action btn-edit-event"onClick={() => handleEditEvent(event.id)}> Modifică</button>
+                              <button className="btn-action btn-delete-event" onClick={() => handleDeleteEvent(event.id)}>Șterge</button>
+                            </>
+                          ) : (
+                            /* BUTON SIMPLU PENTRU VIZITATORI */
+                            <button className="btn-action" onClick={() => navigate(`/events/${event.id}`)} style={{backgroundColor: "#e3f2fd", color: "#1976d2"}}>
+                              Vezi Detalii
                             </button>
-                            <button 
-                              className="btn-action btn-edit-event"
-                              onClick={() => handleEditEvent(event.id)}
-                            >
-                              Modifică
-                            </button>
-                            <button 
-                              className="btn-action btn-delete-event"
-                              onClick={() => handleDeleteEvent(event.id)}
-                            >
-                              Șterge
-                            </button>
+                          )}
                           </div>
                         </div>
                       ))
@@ -774,22 +780,20 @@ const handleReject = async (enrollmentId: number) => {
                             </div>
                           </div>
                           <div className="event-actions">
-                            <button 
-                              className="btn-action btn-view-event"
-                              onClick={() => navigate(`/events/${enroll.event.id}`)}
-                              style={{ backgroundColor: "#e3f2fd", color: "#1976d2" }}
-                            >
-                              Vezi pagina
-                            </button>
+                            <button className="btn-action" onClick={() => navigate(`/events/${enroll.event.id}`)} style={{backgroundColor: "#e3f2fd", color: "#1976d2"}}>Vezi detalii</button>
+                          {/* BUTON RETRAGERE DOAR PENTRU PROPRIUL PROFIL */}
+                            {isOwnProfile && enroll.status !== "REJECTED" && (
+                              <button className="btn-action btn-delete-event" onClick={() => { setEnrollmentToWithdraw(enroll.id); setShowWithdrawModal(true); }}>Retragere</button>
+                            )}
                             {/* Permitem retragerea doar daca nu a fost deja respins*/}
-                            {enroll.status !== "REJECTED" && (
+                            {/* {enroll.status !== "REJECTED" && (
                               <button 
                                 className="btn-action btn-delete-event"
                                 onClick={() => openWithdrawModal(enroll.id)}
                               >
                                 Retragere
                               </button>
-                            )}
+                            )} */}
                           </div>
                         </div>
                       ))
@@ -798,7 +802,7 @@ const handleReject = async (enrollmentId: number) => {
                     )}
                   </div>
                 )}
-                {activeTab === "reports" && (
+                {isOwnProfile && activeTab === "reports" && (
                   <div className="tab-pane">
                     <h3>Istoricul raportărilor tale</h3>
                     {reports.length > 0 ? (
