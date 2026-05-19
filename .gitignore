@@ -6,5 +6,3 @@ package.json
 *.txt
 application.properties
 uploads/
-uploads/
-.gitignore
