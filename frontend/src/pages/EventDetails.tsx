@@ -5,6 +5,8 @@ import L from 'leaflet';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ReportModal from '../components/ReportModal';
+import StarRating from '../components/StarRating';
+import RatingModal from '../components/RatingModal';
 import './EventDetails.css';
 
 // Pin-ul personalizat (refolosit de la LocationPicker)
@@ -22,17 +24,37 @@ export default function EventDetails() {
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [address, setAddress] = useState<string>("Se încarcă adresa...");
+    const [averageRating, setAverageRating] = useState<number>(0);
 
     const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
 
     const [enrollmentStatus, setEnrollmentStatus] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [participants, setParticipants] = useState<any[]>([]);
 
     // State pentru raportare
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const [reportType, setReportType] = useState<"USER" | "EVENT">("EVENT");
     const [reportTargetId, setReportTargetId] = useState(0);
     const [reportTargetLabel, setReportTargetLabel] = useState("");
+
+    // State pentru rating
+    const [ratingModalOpen, setRatingModalOpen] = useState(false);
+    const [ratingTargetType, setRatingTargetType] = useState<'USER' | 'EVENT'>('EVENT');
+    const [ratingTargetId, setRatingTargetId] = useState(0);
+    const [ratingTargetLabel, setRatingTargetLabel] = useState("");
+
+    const fetchAverageRating = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/ratings/event/${id}/average`);
+            if (response.ok) {
+                const data = await response.json();
+                setAverageRating(data);
+            }
+        } catch (error) {
+            console.error("Eroare fetch average rating:", error);
+        }
+    };
 
     useEffect(() => {
         const fetchAddress = async () => {
@@ -53,13 +75,14 @@ export default function EventDetails() {
 
         if (event) {
             fetchAddress();
+            fetchAverageRating();
         }
     }, [event]);
 
     useEffect(() => {
         const checkEnrollmentStatus = async () => {
             if (!loggedInUser.id || !id) return;
-            
+
             try {
                 const response = await fetch(`http://localhost:8080/api/enrollments/status?userId=${loggedInUser.id}&eventId=${id}`);
                 if (response.ok) {
@@ -80,6 +103,8 @@ export default function EventDetails() {
                 if (response.ok) {
                     const data = await response.json();
                     setEvent(data);
+                    // Fetch participants after event details
+                    fetchParticipants();
                 } else {
                     console.error("Evenimentul nu a fost găsit");
                 }
@@ -89,6 +114,20 @@ export default function EventDetails() {
                 setLoading(false);
             }
         };
+
+        const fetchParticipants = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/enrollments/event/${id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // We only want confirmed participants for rating purposes
+                    setParticipants(data.filter((p: any) => p.status === 'CONFIRMED'));
+                }
+            } catch (error) {
+                console.error("Eroare fetch participants:", error);
+            }
+        };
+
         fetchEventDetails();
     }, [id]);
 
@@ -141,19 +180,28 @@ export default function EventDetails() {
 
     const isOrganizer = loggedInUser.id === event.organizer?.id;
     const availableSpots = event.capacity - (event.participantsCount || 0);
+    const isConfirmed = enrollmentStatus === "CONFIRMED";
 
     return (
         <div className="event-details-page">
             <Navbar />
-            
+
             <main className="details-content">
                 {/* Antet: Titlu și Categorie */}
                 <div className="details-header-card">
                     <div className="header-left">
-                        <h1 className="details-title">{event.title}</h1>
+                        <div className="title-rating-row">
+                            <h1 className="details-title">{event.title}</h1>
+                            {averageRating > 0 && (
+                                <div className="event-avg-rating">
+                                    <StarRating rating={Math.round(averageRating)} />
+                                    <span>({averageRating.toFixed(1)})</span>
+                                </div>
+                            )}
+                        </div>
                         <span className="details-category">{event.category}</span>
                     </div>
-                    
+
                     <div className="header-right">
                         <p className="organizer-label">Organizat de:</p>
                         <p className="organizer-real-name">
@@ -227,9 +275,68 @@ export default function EventDetails() {
                                      availableSpots > 0 ? "Înscrie-te acum" : "Locuri epuizate"}
                                 </button>
                             )}
-                            
+
                             {isOrganizer && (
                                 <div className="organizer-badge">Ești organizatorul acestui eveniment</div>
+                            )}
+
+                            {/* Secțiune Rating (pentru participanți confirmați) */}
+                            {isConfirmed && (
+                                <div className="rating-buttons-section">
+                                    <button 
+                                        className="btn-action-rating btn-rate-event"
+                                        onClick={() => {
+                                            setRatingTargetType('EVENT');
+                                            setRatingTargetId(event.id);
+                                            setRatingTargetLabel(event.title);
+                                            setRatingModalOpen(true);
+                                        }}
+                                    >
+                                        ⭐ Evaluează evenimentul
+                                    </button>
+                                    <button 
+                                        className="btn-action-rating btn-rate-user"
+                                        onClick={() => {
+                                            setRatingTargetType('USER');
+                                            setRatingTargetId(event.organizer.id);
+                                            setRatingTargetLabel(`${event.organizer.firstName} ${event.organizer.lastName}`);
+                                            setRatingModalOpen(true);
+                                        }}
+                                    >
+                                        ⭐ Evaluează organizatorul
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Secțiune Rating Participanți (pentru participanți confirmați sau organizator) */}
+                            {(isConfirmed || isOrganizer) && participants.length > 0 && (
+                                <div className="participants-rating-section">
+                                    <h4>Evaluează {isOrganizer ? 'participanții' : 'alți participanți'}:</h4>
+                                    <div className="participants-mini-list">
+                                        {participants
+                                            .filter(p => p.user.id !== loggedInUser.id)
+                                            .map(p => (
+                                                <div key={p.user.id} className="participant-rating-item">
+                                                    <span>{p.user.firstName} {p.user.lastName}</span>
+                                                    <button 
+                                                        className="btn-rate-small"
+                                                        onClick={() => {
+                                                            setRatingTargetType('USER');
+                                                            setRatingTargetId(p.user.id);
+                                                            setRatingTargetLabel(`${p.user.firstName} ${p.user.lastName}`);
+                                                            setRatingModalOpen(true);
+                                                        }}
+                                                    >
+                                                        ⭐ Evaluează
+                                                    </button>
+                                                </div>
+                                            ))
+                                        }
+                                        {participants.filter(p => p.user.id !== loggedInUser.id).length === 0 && (
+                                            <p className="no-other-participants">Niciun participant de evaluat momentan.</p>
+                                        )}
+                                    </div>
+                                </div>
                             )}
 
                             {/* Butoane de raportare */}
@@ -286,6 +393,18 @@ export default function EventDetails() {
                 targetId={reportTargetId}
                 targetLabel={reportTargetLabel}
                 reporterId={loggedInUser.id}
+            />
+
+            {/* Modal rating */}
+            <RatingModal
+                isOpen={ratingModalOpen}
+                onClose={() => setRatingModalOpen(false)}
+                onSuccess={fetchAverageRating}
+                targetType={ratingTargetType}
+                targetId={ratingTargetId}
+                targetLabel={ratingTargetLabel}
+                evaluatorId={loggedInUser.id}
+                eventId={event.id}
             />
         </div>
     );
