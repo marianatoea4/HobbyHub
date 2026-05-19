@@ -1,0 +1,23 @@
+.star-rating {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.star {
+    font-size: 24px;
+    color: #ccc;
+    cursor: default;
+    transition: color 0.2s ease-in-out;
+}
+
+.star.filled {
+    color: #f1c40f;
+}
+
+.star.editable {
+    cursor: pointer;
+}
+
+.star.editable:hover {
+    transform: scale(1.1);
+}

@@ -13,13 +13,31 @@
   box-sizing: border-box;
 }
 
+/* Stil nou pentru cardul de fundal */
+.welcome-card {
+  background-color: #fffdf6;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+  margin-bottom: 30px; /* Oferă spațiu generos până la grila de jos */
+}
+
+/* Modificat pentru a arăta bine în interiorul cardului */
 .welcome-text {
   color: #333333;
   font-size: 2.2rem;
   font-weight: 700;
   margin-top: 0;
-  margin-bottom: 30px;
+  margin-bottom: 5px;
   line-height: 1.2;
+}
+
+/* Subtextul de sub Salut */
+.welcome-subtext {
+  margin: 0;
+  color: #666666;
+  font-size: 1rem;
 }
 
 .dashboard-grid {
@@ -56,6 +74,7 @@
   justify-content: space-between;
   align-items: center;
   background-color: #fffdf6;
+  cursor: pointer;
 }
 
 .event-mini-card:hover {
@@ -88,4 +107,3 @@
   text-align: center;
   flex-shrink: 0;
 }
-

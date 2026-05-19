@@ -4,5 +4,7 @@ package-lock.json
 package.json
 *.pdf
 *.txt
+application.properties
+uploads/
 uploads/
 .gitignore

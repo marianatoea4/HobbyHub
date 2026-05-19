@@ -378,3 +378,128 @@
     color: #e74c3c;
     background: #fef2f2;
 }
+
+/* ===== Rating Section ===== */
+.title-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.event-avg-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #fdfbf0;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #ddeb9d;
+}
+
+.event-avg-rating span {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #5d7a3d;
+}
+
+.rating-buttons-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-action-rating {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-rate-event {
+    background: #f1c40f;
+    color: #333;
+}
+
+.btn-rate-event:hover {
+    background: #e1b70d;
+}
+
+.btn-rate-user {
+    background: #3498db;
+    color: white;
+}
+
+.btn-rate-user:hover {
+    background: #2980b9;
+}
+
+/* ===== Participants Rating Section ===== */
+.participants-rating-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #ddd;
+}
+
+.participants-rating-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+    color: #333;
+    font-weight: 700;
+}
+
+.participants-mini-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.participant-rating-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9f9f9;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.participant-rating-item span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #555;
+}
+
+.btn-rate-small {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    background: #a0c878;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-rate-small:hover {
+    background: #8fb866;
+}
+
+.no-other-participants {
+    font-size: 0.8rem;
+    color: #999;
+    font-style: italic;
+    margin: 0;
+}

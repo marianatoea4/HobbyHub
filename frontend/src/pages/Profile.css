@@ -161,6 +161,19 @@
   margin-bottom: 5px;
 }
 
+.rating-stat-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-stars-wrapper {
+  transform: scale(0.75);
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
 .stat-label {
   font-size: 0.95rem;
   color: #666666;
