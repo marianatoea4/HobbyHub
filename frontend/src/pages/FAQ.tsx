@@ -7,7 +7,7 @@ export default function FAQ() {
     <div className="static-page-wrapper">
       <Navbar />
       <div className="static-page-container">
-        <h1 className="static-page-title">Întrebări Frecvente (FAQ)</h1>
+        <h1 className="static-page-title">Întrebări frecvente (FAQ)</h1>
         <div className="static-page-content">
           <div className="faq-item">
             <div className="faq-question">Cum mă înscriu la un eveniment?</div>
