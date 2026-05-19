@@ -1,0 +1,115 @@
+.rating-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.rating-modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.rating-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+}
+
+.rating-modal-content h2 {
+    margin-top: 0;
+    color: #2d3436;
+    font-size: 1.5rem;
+}
+
+.rating-target-name {
+    color: #636e72;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.rating-score-container {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.rating-score-container p {
+    margin-bottom: 0.5rem;
+    color: #2d3436;
+}
+
+.rating-comment-container p {
+    margin-bottom: 0.5rem;
+    color: #2d3436;
+}
+
+.rating-comment-container textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.rating-error-msg {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.rating-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.rating-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-cancel {
+    background: #f1f2f6;
+    color: #2d3436;
+}
+
+.btn-cancel:hover {
+    background: #dfe4ea;
+}
+
+.btn-submit {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-submit:hover {
+    background: #219150;
+}
+
+.btn-submit:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}

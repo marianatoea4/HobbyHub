@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./Profile.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import StarRating from "../components/StarRating";
 
 // interfat pentru datele utilizatorului primite de la API
 interface User {
@@ -14,25 +15,6 @@ interface User {
   profilePicture?: string;
   organizedEventsCount?: number;
   joinedEventsCount?: number;
-  rating?: number;
-}
-
-function StarIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="#a0c878"
-      style={{
-        display: "inline-block",
-        marginLeft: "6px",
-        verticalAlign: "middle",
-      }}
-    >
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-    </svg>
-  );
 }
 
 function AvatarWithInitials({
@@ -137,6 +119,7 @@ export default function Profile() {
   const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isOwnProfile = !urlId || Number(urlId) === loggedInUser.id;
   const targetUserId = isOwnProfile ? loggedInUser.id : Number(urlId);
+  const [averageRating, setAverageRating] = useState<number>(0);
 
   // stari pentru schimbare parola
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -204,13 +187,21 @@ const fetchUserData = () => {
     }
     setLoading(true);
 
-    // Un singur Promise.all curat pentru toate datele
+    const handleResponse = async (res: Response, fieldName: string) => {
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Eroare la încărcarea ${fieldName}: ${res.status} ${text}`);
+      }
+      return res.json();
+    };
+
     Promise.all([
-      fetch(`http://localhost:8080/api/users/${targetUserId}`).then(res => res.json()),
-      fetch(`http://localhost:8080/api/events/organizer/${targetUserId}`).then(res => res.json()),
-      fetch(`http://localhost:8080/api/enrollments/user/${targetUserId}`).then(res => res.json()),
+      fetch(`http://localhost:8080/api/users/${targetUserId}`).then(res => handleResponse(res, "datelor de utilizator")),
+      fetch(`http://localhost:8080/api/events/organizer/${targetUserId}`).then(res => handleResponse(res, "evenimentelor organizate")),
+      fetch(`http://localhost:8080/api/enrollments/user/${targetUserId}`).then(res => handleResponse(res, "înscrierilor")),
+      fetch(`http://localhost:8080/api/ratings/user/${targetUserId}/average`).then(res => handleResponse(res, "rating-ului")),
     ])
-      .then(([userData, organizedData, enrollmentsData]) => {
+      .then(([userData, organizedData, enrollmentsData, avgRating]) => {
         setUser({
           ...userData,
           organizedEventsCount: organizedData.length,
@@ -218,9 +209,8 @@ const fetchUserData = () => {
         });
         setOrganizedEvents(organizedData);
         setJoinedEvents(enrollmentsData);
-        // setReports(reportsData);
+        setAverageRating(avgRating);
 
-        // Sincronizare modal dacă e deschis
         if (showParticipantsModal && selectedEvent) {
           const updated = organizedData.find((e: Event) => e.id === selectedEvent.id);
           if (updated) setSelectedEvent(updated);
@@ -230,7 +220,8 @@ const fetchUserData = () => {
         setLoading(false);
       })
       .catch((err) => {
-        setError("Eroare la încărcarea datelor.");
+        console.error("Profile fetch error:", err);
+        setError(err.message || "Eroare la încărcarea datelor.");
         setLoading(false);
       });
   };
@@ -693,9 +684,11 @@ const handleReject = async (enrollmentId: number) => {
                 <span className="stat-label">Evenimente înscrise</span>
               </div>
               <div className="stat-item profile-card">
-                <span className="stat-value">
-                  {user.rating}
-                  <StarIcon />
+                <span className="stat-value rating-stat-container">
+                  {averageRating > 0 ? averageRating.toFixed(1) : "N/A"}
+                  <div className="stat-stars-wrapper">
+                    <StarRating rating={Math.round(averageRating)} />
+                  </div>
                 </span>
                 <span className="stat-label">Rating utilizator</span>
               </div>
