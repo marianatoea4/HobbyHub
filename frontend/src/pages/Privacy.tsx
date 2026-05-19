@@ -7,7 +7,7 @@ export default function Privacy() {
     <div className="static-page-wrapper">
       <Navbar />
       <div className="static-page-container">
-        <h1 className="static-page-title">Politica de Confidențialitate</h1>
+        <h1 className="static-page-title">Politica de confidențialitate</h1>
         <div className="static-page-content">
           <p>
             La HobbyHub, protejarea datelor tale personale este o prioritate.

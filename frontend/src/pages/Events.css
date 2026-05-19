@@ -151,9 +151,18 @@
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-left: auto;
+  margin-right: 12px;
+  outline: none;
 }
 
 .btn-view-event:hover {
+  background-color: #8eb36a !important;
+  box-shadow: 0 4px 10px rgba(160, 200, 120, 0.3);
+}
+
+.btn-view-event:focus {
+  outline: none;
   background-color: #8eb36a;
 }
 

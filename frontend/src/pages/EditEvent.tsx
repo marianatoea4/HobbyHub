@@ -73,7 +73,9 @@ export default function EditEvent() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [readableAddress, setReadableAddress] = useState("Se încarcă locația...");
+  const [readableAddress, setReadableAddress] = useState(
+    "Se încarcă locația...",
+  );
 
   const [formData, setFormData] = useState({
     title: "",
@@ -83,7 +85,7 @@ export default function EditEvent() {
     capacity: 10,
     lat: 44.4268,
     lng: 26.1025,
-    status: "Active",
+    status: "Activ",
   });
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -93,8 +95,9 @@ export default function EditEvent() {
     const fetchEvent = async () => {
       try {
         const response = await fetch(`http://localhost:8080/api/events/${id}`);
-        if (!response.ok) throw new Error("Evenimentul nu a putut fi încărcat.");
-        
+        if (!response.ok)
+          throw new Error("Evenimentul nu a putut fi încărcat.");
+
         const data = await response.json();
         setFormData({
           title: data.title,
@@ -104,7 +107,7 @@ export default function EditEvent() {
           capacity: data.capacity,
           lat: data.lat,
           lng: data.lng,
-          status: data.status || "Active",
+          status: data.status || "Activ",
         });
 
         if (data.dateTime) {
@@ -124,13 +127,15 @@ export default function EditEvent() {
   }, [id, navigate]);
 
   const handleLocationChange = async (lat: number, lng: number) => {
-    setFormData(prev => ({ ...prev, lat, lng }));
+    setFormData((prev) => ({ ...prev, lat, lng }));
     const address = await getAddressFromCoords(lat, lng);
     setReadableAddress(address);
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -160,7 +165,7 @@ export default function EditEvent() {
     const data = new FormData();
     data.append(
       "event",
-      new Blob([JSON.stringify(formData)], { type: "application/json" })
+      new Blob([JSON.stringify(formData)], { type: "application/json" }),
     );
 
     if (selectedFiles) {
@@ -227,8 +232,17 @@ export default function EditEvent() {
                     <CustomDropdown
                       defaultLabel="Alege categoria"
                       value={formData.category}
-                      onChange={(val) => setFormData((prev) => ({ ...prev, category: val }))}
-                      options={["Sport", "Gaming", "Gătit", "Artă", "Muzică", "Altele"]}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, category: val }))
+                      }
+                      options={[
+                        "Sport",
+                        "Gaming",
+                        "Gătit",
+                        "Artă",
+                        "Muzică",
+                        "Altele",
+                      ]}
                     />
                   </div>
                   <div className="form-group">
@@ -248,8 +262,10 @@ export default function EditEvent() {
                   <CustomDropdown
                     defaultLabel="Alege status"
                     value={formData.status}
-                    onChange={(val) => setFormData((prev) => ({ ...prev, status: val }))}
-                    options={["Active", "Finished", "Cancelled"]}
+                    onChange={(val) =>
+                      setFormData((prev) => ({ ...prev, status: val }))
+                    }
+                    options={["Activ", "Finalizat", "Anulat"]}
                   />
                 </div>
                 <div className="form-group">
@@ -268,14 +284,19 @@ export default function EditEvent() {
               <div className="form-column">
                 <div className="form-group">
                   <label>Adaugă poze noi (opțional)</label>
-                  <input type="file" multiple accept="image/*" onChange={handleFileChange} />
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
                 </div>
                 <div className="form-group">
                   <label>Modifică Locația</label>
-                  <LocationPicker 
+                  <LocationPicker
                     initialLat={formData.lat}
                     initialLng={formData.lng}
-                    onLocationSelect={handleLocationChange} 
+                    onLocationSelect={handleLocationChange}
                   />
                   <div className="address-display-box">
                     <p className="address-text">{readableAddress}</p>
@@ -287,7 +308,12 @@ export default function EditEvent() {
               <button type="submit" className="create-btn" disabled={saving}>
                 {saving ? "Se salvează..." : "Salvează modificările"}
               </button>
-              <button type="button" className="create-btn" style={{ backgroundColor: "#ccc" }} onClick={() => navigate("/profile")}>
+              <button
+                type="button"
+                className="create-btn"
+                style={{ backgroundColor: "#ccc" }}
+                onClick={() => navigate("/profile")}
+              >
                 Anulează
               </button>
             </div>

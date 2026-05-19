@@ -71,7 +71,9 @@ const CustomDropdown = ({
 export default function CreateEvent() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [readableAddress, setReadableAddress] = useState("Se încarcă locația...");
+  const [readableAddress, setReadableAddress] = useState(
+    "Se încarcă locația...",
+  );
 
   // state-uri pentru datele text
   const [formData, setFormData] = useState({
@@ -82,7 +84,7 @@ export default function CreateEvent() {
     capacity: 10,
     lat: 44.4268, // placeholder coordonate (Bucuresti)
     lng: 26.1025,
-    status: "Active",
+    status: "Activ",
   });
 
   // state pentru data si ora
@@ -91,12 +93,14 @@ export default function CreateEvent() {
   // state pentru poze
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
-  const handleLocationChange = async (lat: number, lng: number) => {
-        setFormData(prev => ({ ...prev, lat, lng }));
+  const [dateError, setDateError] = useState("");
 
-        const address = await getAddressFromCoords(lat, lng);
-        setReadableAddress(address);
-    };
+  const handleLocationChange = async (lat: number, lng: number) => {
+    setFormData((prev) => ({ ...prev, lat, lng }));
+
+    const address = await getAddressFromCoords(lat, lng);
+    setReadableAddress(address);
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -115,6 +119,14 @@ export default function CreateEvent() {
     setSelectedDate(date);
     if (date) {
       // Formam data ca string local (fara conversie la UTC)
+
+      const now = new Date();
+      // Verificare noua:
+      if (date < now) {
+        setDateError("Data și ora nu pot fi în trecut!");
+      } else {
+        setDateError("");
+      }
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
@@ -130,21 +142,27 @@ export default function CreateEvent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (dateError || (selectedDate && selectedDate < new Date())) {
+      alert("Te rog să corectezi data înainte de a publica evenimentul.");
+      return;
+    }
+
     setLoading(true);
     const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
 
     if (!loggedInUser.id) {
-        alert("Trebuie să fii logat pentru a crea un eveniment!");
-        setLoading(false);
-        return;
+      alert("Trebuie să fii logat pentru a crea un eveniment!");
+      setLoading(false);
+      return;
     }
 
     // const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
-    console.log("User logat extras din storage:", loggedInUser);  
+    console.log("User logat extras din storage:", loggedInUser);
 
     const eventToSave = {
-        ...formData,
-        organizerId: loggedInUser.id // Trimitem ID-ul contului logat
+      ...formData,
+      organizerId: loggedInUser.id, // Trimitem ID-ul contului logat
     };
 
     // adaugam obiectul de eveniment ca blob JSON (cu organizatorul inclus)
@@ -152,8 +170,8 @@ export default function CreateEvent() {
 
     const eventPayload = { ...eventToSave, organizer: { id: loggedInUser.id } };
     data.append(
-        "event",
-        new Blob([JSON.stringify(eventPayload)], { type: "application/json" }),
+      "event",
+      new Blob([JSON.stringify(eventPayload)], { type: "application/json" }),
     );
 
     // adaugam fisierele
@@ -267,8 +285,21 @@ export default function CreateEvent() {
                     dateFormat="dd/MM/yyyy HH:mm"
                     placeholderText="Selectează data și ora"
                     className="date-picker-input"
+                    minDate={new Date()}
                     required
                   />
+                  {dateError && (
+                    <p
+                      style={{
+                        color: "#ff4d4d",
+                        fontSize: "0.85rem",
+                        marginTop: "5px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {dateError}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -293,11 +324,10 @@ export default function CreateEvent() {
 
                 <div className="form-group">
                   <label>Locație</label>
-                  <LocationPicker 
-                    onLocationSelect={handleLocationChange} />
-                    <div className="address-display-box">
-                      <p className="address-text">{readableAddress}</p>
-                    </div>
+                  <LocationPicker onLocationSelect={handleLocationChange} />
+                  <div className="address-display-box">
+                    <p className="address-text">{readableAddress}</p>
+                  </div>
                 </div>
               </div>
             </div>

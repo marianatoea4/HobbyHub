@@ -2,44 +2,42 @@ import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./Dashboard.css";
+import { useNavigate } from "react-router-dom";
 
-// aici am modificat pentru a defini structura evenimentelor reale din baza de date
+// structura evenimentelor reale din baza de date
 interface EventData {
   id: number;
   title: string;
   category: string;
   dateTime: string;
-  // adaugam doar campurile de care avem nevoie in dashboard
 }
 
 export default function Dashboard() {
-  // aici am modificat pentru a stoca numele real si evenimentele
   const [userName, setUserName] = useState("Utilizator");
   const [recommendedEvents, setRecommendedEvents] = useState<EventData[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // date ramase hardcodate pentru evenimentele la care participi
-  const upcomingEvents = [
-    { id: 4, title: "Curs de fotografie", date: "10 Mai" },
-    { id: 5, title: "Maratonul lecturii", date: "12 Mai" },
-  ];
+  // Stările noi pentru evenimentele la care participi
+  const [joinedEvents, setJoinedEvents] = useState<EventData[]>([]);
+  const [loadingJoined, setLoadingJoined] = useState(true);
 
-  // aici am modificat pentru a extrage datele cand se incarca pagina
   useEffect(() => {
-    // 1. preluam numele utilizatorului din localstorage
+    let loggedInUserId: number | null = null;
+
+    // 1. preluam numele si ID-ul utilizatorului din localstorage
     const userStr = localStorage.getItem("user");
     if (userStr) {
       try {
         const userData = JSON.parse(userStr);
-        if (userData.firstName) {
-          setUserName(userData.firstName);
-        }
+        if (userData.firstName) setUserName(userData.firstName);
+        if (userData.id) loggedInUserId = userData.id;
       } catch (e) {
         console.error("eroare la parsarea utilizatorului din localstorage");
       }
     }
 
-    // 2. preluam evenimentele din backend
+    // 2. preluam evenimentele din backend (recomandate)
     const fetchRecommendedEvents = async () => {
       try {
         const response = await fetch("http://localhost:8080/api/events/all");
@@ -55,10 +53,41 @@ export default function Dashboard() {
       }
     };
 
+    /// 3. preluam evenimentele la care utilizatorul s-a înscris
+    const fetchJoinedEvents = async (userId: number) => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/enrollments/user/${userId}`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+
+          // MODIFICAREA ESTE AICI:
+          // Parcurgem datele primite. Dacă primim "Enrollment", luăm doar partea de "event" din el.
+          // Dacă primim direct "Event", îl lăsăm așa.
+          const extractedEvents = data.map((item: any) =>
+            item.event ? item.event : item,
+          );
+
+          setJoinedEvents(extractedEvents);
+        }
+      } catch (error) {
+        console.error("Eroare la preluarea evenimentelor înscrise:", error);
+      } finally {
+        setLoadingJoined(false);
+      }
+    };
+
     fetchRecommendedEvents();
+
+    if (loggedInUserId) {
+      fetchJoinedEvents(loggedInUserId);
+    } else {
+      setLoadingJoined(false);
+    }
   }, []);
 
-  // aici am modificat pentru a face data mai frumusica gen 15 mai
+  // functie pentru a face data mai frumusica gen 15 mai
   const formatShortDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -70,8 +99,13 @@ export default function Dashboard() {
       <Navbar />
 
       <main className="dashboard-content">
-        {/* aici am modificat pentru a afisa dinamic numele real */}
-        <h1 className="welcome-text">Salut, {userName}!</h1>
+        {/* Cardul nou pentru mesajul de bun venit */}
+        <div className="welcome-card">
+          <h1 className="welcome-text">Salut, {userName}!</h1>
+          <p className="welcome-subtext">
+            Bine ai revenit pe HobbyHub! Ce pasiuni explorezi astăzi?
+          </p>
+        </div>
 
         <div className="dashboard-grid">
           {/* coloana principala recomandari */}
@@ -79,15 +113,20 @@ export default function Dashboard() {
             <h2 className="section-title">Recomandate pentru tine</h2>
 
             <div className="events-list">
-              {/* aici am modificat pentru a parcurge lista reala de evenimente */}
               {loading ? (
                 <p style={{ color: "#666" }}>Se încarcă recomandările...</p>
               ) : recommendedEvents.length > 0 ? (
                 recommendedEvents.map((event) => (
-                  <div key={event.id} className="event-mini-card">
+                  <div
+                    key={event.id}
+                    className="event-mini-card"
+                    onClick={() =>
+                      navigate(`/events/${event.id}`)
+                    } /* ADAUGAT: Navigare la click */
+                  >
                     <div className="event-info">
                       <h4>{event.title}</h4>
-                      <p>{event.category} • Vezi pe hartă</p>
+                      <p>{event.category}</p> {/* STERS: Vezi pe harta */}
                     </div>
                     <div className="event-date">
                       {formatShortDate(event.dateTime)}
@@ -102,18 +141,29 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* coloana laterala activitatea ta */}
+          {/* coloana laterala activitatea ta (acum dinamica) */}
           <section className="dashboard-section">
             <h2 className="section-title">Urmează să participi</h2>
 
             <div className="events-list">
-              {upcomingEvents.length > 0 ? (
-                upcomingEvents.map((event) => (
-                  <div key={event.id} className="event-mini-card">
+              {loadingJoined ? (
+                <p style={{ color: "#666" }}>Se încarcă evenimentele tale...</p>
+              ) : joinedEvents.length > 0 ? (
+                joinedEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="event-mini-card"
+                    onClick={() =>
+                      navigate(`/events/${event.id}`)
+                    } /* ADAUGAT: Navigare la click */
+                  >
                     <div className="event-info">
                       <h4>{event.title}</h4>
+                      <p>{event.category}</p>
                     </div>
-                    <div className="event-date">{event.date}</div>
+                    <div className="event-date">
+                      {formatShortDate(event.dateTime)}
+                    </div>
                   </div>
                 ))
               ) : (
