@@ -195,13 +195,22 @@ const fetchUserData = () => {
       return res.json();
     };
 
-    Promise.all([
+    const fetchPromises: Promise<any>[] = [
       fetch(`http://localhost:8080/api/users/${targetUserId}`).then(res => handleResponse(res, "datelor de utilizator")),
       fetch(`http://localhost:8080/api/events/organizer/${targetUserId}`).then(res => handleResponse(res, "evenimentelor organizate")),
       fetch(`http://localhost:8080/api/enrollments/user/${targetUserId}`).then(res => handleResponse(res, "înscrierilor")),
       fetch(`http://localhost:8080/api/ratings/user/${targetUserId}/average`).then(res => handleResponse(res, "rating-ului")),
-    ])
-      .then(([userData, organizedData, enrollmentsData, avgRating]) => {
+    ];
+
+    // Fetch reports only for own profile (the tab is only visible on own profile)
+    if (isOwnProfile) {
+      fetchPromises.push(
+        fetch(`http://localhost:8080/api/reports/user/${targetUserId}`).then(res => handleResponse(res, "raportărilor"))
+      );
+    }
+
+    Promise.all(fetchPromises)
+      .then(([userData, organizedData, enrollmentsData, avgRating, reportsData]) => {
         setUser({
           ...userData,
           organizedEventsCount: organizedData.length,
@@ -210,6 +219,11 @@ const fetchUserData = () => {
         setOrganizedEvents(organizedData);
         setJoinedEvents(enrollmentsData);
         setAverageRating(avgRating);
+
+        // Populate reports if fetched
+        if (reportsData) {
+          setReports(reportsData);
+        }
 
         if (showParticipantsModal && selectedEvent) {
           const updated = organizedData.find((e: Event) => e.id === selectedEvent.id);
